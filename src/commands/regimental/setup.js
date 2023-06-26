@@ -4,7 +4,7 @@ module.exports = {
   name: "setup",
   description: "Add your regiment to the App",
   aliases: ["init", "addreg"],
-  category: "Moderation",
+  category: "Regimental",
   isAdmin: true,
   async execute(message, args) {
     try {
