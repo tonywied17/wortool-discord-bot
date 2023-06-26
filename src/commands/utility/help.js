@@ -5,7 +5,7 @@ const path = require("path");
 
 module.exports = {
   name: "help",
-  description: `Information for specific command, ex: \`${config.PREFIX}help setup\``,
+  description: "Information for specific command, ex: 'prefix help setup'",
   aliases: ["commands"],
   category: "Utility",
   usage: `[command name]`,
@@ -15,6 +15,8 @@ module.exports = {
     const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
     const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
     const prefix = guildConfig && guildConfig.prefix ? guildConfig.prefix : config.defaultPrefix;
+
+    this.description = `Information for specific command, ex: '\`${prefix}help setup\`'`;
 
     if (!args.length) {
       // If no command name is provided, display all available commands categorized by folder
@@ -28,9 +30,9 @@ module.exports = {
       });
 
       const embed = new EmbedBuilder()
-        .setColor(0x0099FF)
+      .setColor("#7c7d72")
         .setTitle("Available Commands")
-        .setDescription("Here's a list of all available commands categorized by folder:");
+        .setDescription("Here's a list of all available commands:");
 
       for (const [category, commandList] of Object.entries(groupedCommands)) {
         const commandDescriptions = commandList.map(command => `**${prefix}${command.name}**: ${command.description}`).join("\n");
@@ -50,18 +52,20 @@ module.exports = {
       }
 
       const embed = new EmbedBuilder()
-        .setColor(0x0099FF)
+      .setColor("#425678")
         .setTitle(`Command: ${command.name}`)
         .setDescription(`**Description:** ${command.description}`)
         .addFields(
-          { name: "Usage", value: `${prefix}${command.name} ${command.usage ? command.usage : "" }` },
+          { name: "Usage", value: `\`${prefix}${command.name} ${command.usage ? command.usage : "" }\`` },
         );
 
-      if (command.aliases) {
-        embed.addFields(
-          { name: "Aliases", value: command.aliases.join(", ") },
-        );
-      }
+        if (command.aliases) {
+          const prefixedAliases = command.aliases.map(alias => `\`${prefix}${alias}\``);
+          embed.addFields(
+            { name: "Aliases", value: prefixedAliases.join(", ") },
+          );
+        }
+        
 
       if (command.isAdmin) {
         embed.addFields(

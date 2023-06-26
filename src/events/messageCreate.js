@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 const config = require('../../config.json');
 const fs = require('fs');
 const path = require('path');
@@ -16,8 +16,8 @@ module.exports = {
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
     // Check if the command exists and user is an admin in the guild
-    if (command && (command.isAdmin && !message.member?.permissions.has("ADMINISTRATOR"))) {
-      return message.reply("You must be an admin to execute this command.");
+    if (command && (command.isAdmin && !message.member?.permissions.has(PermissionsBitField.Flags.Administrator))) {
+      return message.reply("You must be an admin to execute this command. Hey @everyone, this guy thinks he's an admin! Look at him trying to use admin commands! BOO THIS MAN!!!");
     }
 
     // Get the guild-specific prefix

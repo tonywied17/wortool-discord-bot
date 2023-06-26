@@ -34,8 +34,9 @@ module.exports = {
       }
 
       const embed = new EmbedBuilder()
+        .setColor("#7c7d72")
         .setTitle('Prefix Updated')
-        .setDescription(`The bot prefix has been updated to: ${newPrefix}`);
+        .setDescription(`The bot prefix has been updated to: \`${newPrefix}\`, use \`${newPrefix}help\` to see available commands.`);
 
       message.channel.send({ embeds: [embed] });
     });
