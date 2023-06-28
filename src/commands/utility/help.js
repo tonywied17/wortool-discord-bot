@@ -8,8 +8,8 @@ module.exports = {
   description: "Information for specific command, ex: 'prefix help setup'",
   aliases: ["commands"],
   category: "Utility",
-  usage: `[command name]`,
-  execute(message, args) {
+  usage: `<command>`,
+  execute(message, args, guildPrefix, client) {
     const { commands } = message.client;
     const guildId = message.guild.id;
     const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
@@ -30,12 +30,12 @@ module.exports = {
       });
 
       const embed = new EmbedBuilder()
-      .setColor("#7c7d72")
+      .setColor("#425678")
         .setTitle("Available Commands")
         .setDescription("Here's a list of all available commands:");
 
       for (const [category, commandList] of Object.entries(groupedCommands)) {
-        const commandDescriptions = commandList.map(command => `**${prefix}${command.name}**: ${command.description}`).join("\n");
+        const commandDescriptions = commandList.map(command => `\`${prefix}${command.name}${command.usage ? " " + command.usage : ""}\`: ${command.description}`).join("\n");
         embed.addFields(
           { name: category, value: commandDescriptions },
         );
@@ -56,7 +56,7 @@ module.exports = {
         .setTitle(`Command: ${command.name}`)
         .setDescription(`**Description:** ${command.description}`)
         .addFields(
-          { name: "Usage", value: `\`${prefix}${command.name} ${command.usage ? command.usage : "" }\`` },
+          { name: "Usage", value: `\`${prefix}${command.name}${command.usage ? " " + command.usage : "" }\`` },
         );
 
         if (command.aliases) {

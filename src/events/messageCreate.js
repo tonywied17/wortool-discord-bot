@@ -40,7 +40,7 @@ module.exports = {
     // Execute the command if it exists
     if (command) {
       console.log(`Executing command: ${command.name}`);
-      command.execute(message, args, guildPrefix); // Pass the guild-specific prefix
+      command.execute(message, args, guildPrefix, client); // Pass the guild-specific prefix
     }
   },
 };

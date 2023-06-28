@@ -1,12 +1,28 @@
 const { EmbedBuilder } = require('discord.js');
+const axios = require('axios');
+const config = require('../../../config.json');
+const fs = require('fs');
+const path = require("path");
 
 module.exports = {
   name: "setup",
-  description: "Add your regiment to the App",
-  aliases: ["init", "addreg"],
+  description: "Add/Update your regiment's Discord server to the application.",
+  aliases: ["init", "add", "update"],
+  usage: `<usa/csa>`,
   category: "Regimental",
   isAdmin: true,
-  async execute(message, args) {
+  async execute(message, args, guildPrefix, client) {
+    const guildId = message.guild.id;
+    const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
+    const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
+    const prefix = guildConfig && guildConfig.prefix ? guildConfig.prefix : config.defaultPrefix;
+
+    if(!args[0] || (args[0].toUpperCase() !== 'USA' && args[0].toUpperCase() !== 'CSA')) {
+      return message.reply(`Please choose a side. \`${prefix}setup <usa/csa>\``);
+    }
+    
+
+
     try {
       let invite = await message.channel.createInvite({
         maxAge: 0, // 0 = infinite expiration
@@ -14,37 +30,55 @@ module.exports = {
       }).catch(console.error);
 
       const guildId = message.guild.id;
+      const guildName = message.guild.name;
       const guildAvatar = message.guild.iconURL();
-      const authorId = message.author.id;
+      const guildInvite = invite.url;
+      const ownerId = message.author.id;
+      const side = args[0].toUpperCase();
 
-      let member = message.mentions.members.first();
-
-      let memberx = message.member;
-      let serverNickname = memberx ? memberx.displayName : null;
+      let member = message.member;
+      let serverNickname = member ? member.displayName : null;
 
       const embed = new EmbedBuilder()
-        .setColor("#7c7d72")
+        .setColor("#425678")
         .setTitle("Regiment Setup Information")
-        .addFields({ name: "Guild ID", value: guildId })
-        .addFields({ name: "Guild Name", value: message.guild.name })
-        .addFields({ name: "Guild Avatar", value: guildAvatar })
-        .addFields({ name: "Guild Invite", value: invite.url })
-        .addFields({ name: "Regiment Owner Discord ID", value: authorId })
-        .addFields({ name: "Regiment Owner Nickname", value: serverNickname })
+        .setThumbnail(guildAvatar)
+        .addFields({ name: "ID", value: guildId })
+        .addFields({ name: "Name", value: guildName })
+        .addFields({ name: "Side", value: side })
+        .addFields({ name: "Avatar", value: guildAvatar })
+        .addFields({ name: "Invite", value: guildInvite })
+        .addFields({ name: "Owner Discord ID", value: ownerId })
+        .addFields({ name: "Owner Nickname", value: serverNickname })
+        // .addFields({ name: "Regiment API", value: "https://api.tonewebdesign.com/pa/regiments" })
+        // .addFields({ name: "Discord App API", value: `https://api.tonewebdesign.com/pa/discord/guild/${guildId}/get`})
         .setTimestamp();
 
-      console.log(`Guild ID: ${guildId}`);
-      console.log(`Guild Name: ${message.guild.name}`);
-      console.log(`Guild Avatar: ${guildAvatar}`);
-      console.log(`Guild Invite: ${invite.url}`);
-      console.log(`Author ID: ${authorId}`);
-      console.log(`Server Nickname: ${serverNickname}`);
 
-      message.channel.send({ embeds: [embed] });
-      message.channel.send("Initialize Regiment Model, Sequelize, and Database.");
+      message.channel.send({ embeds: [embed] }).then((msg) => {
+
+        // Send data to the backend API
+        axios.post('https://api.tonewebdesign.com/pa/regiments/create', {
+          guildId: guildId,
+          guildName: guildName,
+          guildAvatar: guildAvatar,
+          guildInvite: guildInvite,
+          ownerId: ownerId,
+          side: side,
+        })
+        .then(response => {
+          console.log(response.data);
+          message.reply(`Your regiment's discord data has been synchronized to the application. https://api.tonewebdesign.com/pa/regiments/${response.data}`);
+        })
+        .catch(error => {
+          console.error(error);
+          msg.react('❌');
+        });
+      });
+
     } catch (error) {
       console.error(error);
-      message.channel.send("An error occurred while setting up the regiment.");
+      message.reply("An error occurred while setting up the regiment.");
     }
   }
 };
