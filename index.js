@@ -25,6 +25,8 @@ client.on('guildCreate', guild => {
   guildCreate.execute(guild);
 });
 
+
+
 client.on('messageCreate', message => {
   const guildId = message.guild?.id;
   if (!guildId) return;
