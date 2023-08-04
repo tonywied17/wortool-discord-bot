@@ -1,9 +1,22 @@
+/*
+ * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\index.js
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Created Date: Monday June 26th 2023
+ * Author: Tony Wiedman
+ * -----
+ * Last Modified: Fri August 4th 2023 3:41:53 
+ * Modified By: Tony Wiedman
+ * -----
+ * Copyright (c) 2023 Tone Web Design, Molex
+ */
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const { loadCommands } = require('./src/handlers/commandHandler');
 const guildCreate = require('./src/events/guildCreate');
 const messageCreate = require('./src/events/messageCreate');
+const guildMemberAdd = require('./src/events/guildMemberAdd');
+const guildMemberRemove = require('./src/events/guildMemberRemove');
 
 const config = require('./config.json');
 
@@ -21,10 +34,18 @@ client.commands = new Collection();
 // Load commands
 loadCommands(client, './src/commands');
 
+// Events
 client.on('guildCreate', guild => {
   guildCreate.execute(guild);
 });
 
+client.on('guildMemberAdd', member => {
+  guildMemberAdd.execute(member);
+});
+
+client.on('guildMemberRemove', member => {
+  guildMemberRemove.execute(member);
+});
 
 
 client.on('messageCreate', message => {
