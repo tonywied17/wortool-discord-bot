@@ -1,3 +1,14 @@
+/*
+ * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\handlers\commandHandler.js
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Created Date: Monday June 26th 2023
+ * Author: Tony Wiedman
+ * -----
+ * Last Modified: Fri August 4th 2023 3:29:45 
+ * Modified By: Tony Wiedman
+ * -----
+ * Copyright (c) 2023 Tone Web Design, Molex
+ */
 const fs = require("fs");
 const { Collection } = require("discord.js");
 const path = require("path");
