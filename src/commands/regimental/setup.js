@@ -1,3 +1,16 @@
+/*
+ * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Created Date: Monday June 26th 2023
+ * Author: Tony Wiedman
+ * -----
+ * Last Modified: Fri August 4th 2023 3:58:12 
+ * Modified By: Tony Wiedman
+ * -----
+ * Copyright (c) 2023 Tone Web Design, Molex
+ */
+
+
 const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const config = require('../../../config.json');
@@ -38,6 +51,8 @@ module.exports = {
 
       let member = message.member;
       let serverNickname = member ? member.displayName : null;
+      let memberCount = message.guild.memberCount;
+      console.log(message.guild.memberCount)
 
       const embed = new EmbedBuilder()
         .setColor("#425678")
@@ -45,6 +60,7 @@ module.exports = {
         .setThumbnail(guildAvatar)
         .addFields({ name: "ID", value: guildId })
         .addFields({ name: "Name", value: guildName })
+        // .addFields({ name: "Member Count", value: memberCount })
         .addFields({ name: "Side", value: side })
         .addFields({ name: "Avatar", value: guildAvatar })
         .addFields({ name: "Invite", value: guildInvite })
@@ -65,10 +81,11 @@ module.exports = {
           guildInvite: guildInvite,
           ownerId: ownerId,
           side: side,
+          memberCount: memberCount,
         })
         .then(response => {
           console.log(response.data);
-          message.reply(`Your regiment's discord data has been synchronized to the application. https://api.tonewebdesign.com/pa/regiments/${response.data}`);
+          message.reply(`Your regiment's discord data has been synchronized to the application.`);
         })
         .catch(error => {
           console.error(error);
