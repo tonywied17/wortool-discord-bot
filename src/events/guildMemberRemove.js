@@ -4,15 +4,22 @@
  * Created Date: Friday August 4th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri August 4th 2023 3:51:41 
+ * Last Modified: Sat August 5th 2023 3:46:53 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
 
+/**
+ * Updates the member count for the guild
+ */
 module.exports = {
   name: 'guildMemberRemove',
+
+  /**
+   * @param {*} member - The member that left the guild
+   */
   execute(member) {
     const guild = member.guild;
     const guildId = guild.id;

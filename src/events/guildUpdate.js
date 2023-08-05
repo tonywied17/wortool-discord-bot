@@ -1,30 +1,35 @@
 /*
  * File: c:\Users\tonyw\AppData\Local\Temp\scp43687\home\bots\ReggieBot\src\events\guildUpdate.js
- * Project: c:\Users\tonyw\AppData\Local\Temp\scp41803\home\bots\ReggieBot\src\events
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 4:21:22 
+ * Last Modified: Sat August 5th 2023 3:47:16 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
 
+/**
+ * Updates the member count for the guild
+ */
 module.exports = {
   name: 'guildUpdate',
+
+  /**
+   * @param {*} oldGuild - The old guild
+   * @param {*} newGuild - The new guild
+   */
   execute(oldGuild, newGuild) {
-    // Check if the guild name has changed
     if (oldGuild.name !== newGuild.name) {
       console.log(`Guild name changed from ${oldGuild.name} to ${newGuild.name}`);
     }
 
-    // Check if the guild icon has changed
     if (oldGuild.icon !== newGuild.icon) {
       console.log(`Guild icon changed from ${oldGuild.icon} to ${newGuild.icon}`);
     }
 
-    // Prepare the request data
     const guildId = newGuild.id;
     const updateData = {
       guildId: guildId,
@@ -32,7 +37,6 @@ module.exports = {
       guildAvatar: newGuild.iconURL()
     };
 
-    // Make the axios request
     axios.post(`https://api.tonewebdesign.com/pa/regiments/updateDiscord`, updateData)
       .then((res) => {
         console.log(`statusCode: ${res.status}`);
