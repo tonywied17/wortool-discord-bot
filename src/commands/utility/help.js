@@ -1,14 +1,37 @@
+/*
+ * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\utility\help.js
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Created Date: Monday June 26th 2023
+ * Author: Tony Wiedman
+ * -----
+ * Last Modified: Sat August 5th 2023 10:26:16 
+ * Modified By: Tony Wiedman
+ * -----
+ * Copyright (c) 2023 Tone Web Design, Molex
+ */
 const { EmbedBuilder } = require('discord.js');
 const config = require('../../../config.json');
 const fs = require('fs');
 const path = require("path");
 
+/**
+ * The `help` command displays a list of available commands.
+ */
 module.exports = {
   name: "help",
   description: "Information for specific command, ex: 'prefix help setup'",
   aliases: ["commands"],
   category: "Utility",
   usage: `<command>`,
+
+  /**
+   * The `help` command displays a list of available commands.
+   * @param {*} message - The message
+   * @param {*} args - The arguments
+   * @param {*} guildPrefix - The guild prefix
+   * @param {*} client - The client
+   * @returns - {void}
+   */
   execute(message, args, guildPrefix, client) {
     const { commands } = message.client;
     const guildId = message.guild.id;
@@ -19,7 +42,6 @@ module.exports = {
     this.description = `Information for specific command, ex: '\`${prefix}help setup\`'`;
 
     if (!args.length) {
-      // If no command name is provided, display all available commands categorized by folder
       const groupedCommands = {};
       commands.forEach((command) => {
         const category = command.category || "Other";
@@ -28,7 +50,6 @@ module.exports = {
         }
         groupedCommands[category].push(command);
       });
-
       const embed = new EmbedBuilder()
       .setColor("#425678")
         .setTitle("Available Commands")
@@ -40,17 +61,14 @@ module.exports = {
           { name: category, value: commandDescriptions },
         );
       }
-
       message.channel.send({ embeds: [embed] });
     } else {
-      // If a command name is provided, display information about that command
       const commandName = args[0].toLowerCase();
       const command = commands.get(commandName) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
       if (!command) {
         return message.reply("That's not a valid command.");
       }
-
       const embed = new EmbedBuilder()
       .setColor("#425678")
         .setTitle(`Command: ${command.name}`)
@@ -58,21 +76,17 @@ module.exports = {
         .addFields(
           { name: "Usage", value: `\`${prefix}${command.name}${command.usage ? " " + command.usage : "" }\`` },
         );
-
         if (command.aliases) {
           const prefixedAliases = command.aliases.map(alias => `\`${prefix}${alias}\``);
           embed.addFields(
             { name: "Aliases", value: prefixedAliases.join(", ") },
           );
         }
-        
-
       if (command.isAdmin) {
         embed.addFields(
           { name: "Admin Only", value: "This command can only be used by administrators." },
         );
       }
-
       message.channel.send({ embeds: [embed] });
     }
   }
