@@ -4,15 +4,26 @@
  * Created Date: Friday August 4th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri August 4th 2023 3:51:41 
+ * Last Modified: Sat August 5th 2023 10:16:45 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
 
+/**
+ * The `guildMemberRemove` event is emitted whenever a member leaves a guild, or is kicked.
+ * @param {GuildMember} member The member that left the guild
+ * @returns {void}
+ */
 module.exports = {
   name: 'guildMemberRemove',
+
+  /**
+   * The `guildMemberRemove` event is emitted whenever a member leaves a guild, or is kicked.
+   * @param {*} member - The member that left the guild
+   * @returns {void}
+   */
   execute(member) {
     const guild = member.guild;
     const guildId = guild.id;
