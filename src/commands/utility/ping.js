@@ -1,10 +1,32 @@
+/*
+ * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\utility\ping.js
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Created Date: Monday June 26th 2023
+ * Author: Tony Wiedman
+ * -----
+ * Last Modified: Sat August 5th 2023 10:30:24 
+ * Modified By: Tony Wiedman
+ * -----
+ * Copyright (c) 2023 Tone Web Design, Molex
+ */
 const { EmbedBuilder } = require('discord.js');
 
+/**
+ * The `ping` command is used to check the bot's latency.
+ */
 module.exports = {
   name: "ping",
   description: "Ping command",
   aliases: ["pingie", "p"],
   category: "Utility",
+
+  /**
+   * The `ping` command is used to check the bot's latency.
+   * @param {*} message - The message
+   * @param {*} args - The arguments
+   * @param {*} guildPrefix - The guild prefix
+   * @param {*} client - The client
+   */
   async execute(message, args, guildPrefix, client) {
     try {
 
