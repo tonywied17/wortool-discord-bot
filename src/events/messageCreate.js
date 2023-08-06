@@ -1,50 +1,35 @@
-/*
- * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\events\messageCreate.js
- * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
- * Created Date: Monday June 26th 2023
- * Author: Tony Wiedman
- * -----
- * Last Modified: Sat August 5th 2023 3:47:55 
- * Modified By: Tony Wiedman
- * -----
- * Copyright (c) 2023 Tone Web Design, Molex
- */
 const { PermissionsBitField } = require('discord.js');
 const config = require('../../config.json');
 const fs = require('fs');
 const path = require('path');
 
-/**
- * Handles messages sent in Discord
- */
 module.exports = {
   name: "messageCreate",
-
-  /**
-   * @param {*} client - The Discord client
-   * @param {*} prefix - The bot prefix
-   * @param {*} message - The message object that was sent to trigger this command
-   * @returns - A message indicating whether the prefix was successfully updated
-   */
   execute(client, prefix, message) {
+    // Ignore messages from bots or without the prefix
     if (message.author.bot || !message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
+
+    // Get the command from the commandHandler
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
+    // Check if the command exists and user is an admin in the guild
     if (command && (command.isAdmin && !message.member?.permissions.has(PermissionsBitField.Flags.Administrator))) {
       return message.reply("You must be an admin to execute this command. Hey @everyone, this guy thinks he's an admin! Look at him trying to use admin commands! BOO THIS MAN!!!");
     }
 
+    // Get the guild-specific prefix
     const guildId = message.guild.id;
     const guildConfigPath = path.join(__dirname, '../../guilds', `${guildId}.json`);
-    let guildPrefix = prefix;
+    let guildPrefix = prefix; // Default prefix
 
+    // Check if the guild-specific configuration file exists
     if (fs.existsSync(guildConfigPath)) {
       try {
         const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-        guildPrefix = guildConfig.prefix || prefix;
+        guildPrefix = guildConfig.prefix || prefix; // Use the guild-specific prefix if available
         console.log(`Guild ID: ${guildId}`);
         console.log(`Guild Prefix: ${guildPrefix}`);
       } catch (error) {
@@ -52,9 +37,10 @@ module.exports = {
       }
     }
 
+    // Execute the command if it exists
     if (command) {
       console.log(`Executing command: ${command.name}`);
-      command.execute(message, args, guildPrefix, client);
+      command.execute(message, args, guildPrefix, client); // Pass the guild-specific prefix
     }
   },
 };
