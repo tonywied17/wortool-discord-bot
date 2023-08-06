@@ -4,19 +4,20 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri August 4th 2023 3:58:12 
+ * Last Modified: Sat August 5th 2023 10:32:36 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
-
-
 const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const config = require('../../../config.json');
 const fs = require('fs');
 const path = require("path");
 
+/**
+ * The `setup` command adds a regiment to the application.
+ */
 module.exports = {
   name: "setup",
   description: "Add/Update your regiment's Discord server to the application.",
@@ -24,6 +25,14 @@ module.exports = {
   usage: `<usa/csa>`,
   category: "Regimental",
   isAdmin: true,
+
+  /**
+   * @param {*} message - The message
+   * @param {*} args - The arguments
+   * @param {*} guildPrefix - The guild prefix
+   * @param {*} client - The client
+   * @returns - {void}
+   */
   async execute(message, args, guildPrefix, client) {
     const guildId = message.guild.id;
     const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
@@ -33,9 +42,7 @@ module.exports = {
     if(!args[0] || (args[0].toUpperCase() !== 'USA' && args[0].toUpperCase() !== 'CSA')) {
       return message.reply(`Please choose a side. \`${prefix}setup <usa/csa>\``);
     }
-    
-
-
+ 
     try {
       let invite = await message.channel.createInvite({
         maxAge: 0, // 0 = infinite expiration
@@ -73,7 +80,6 @@ module.exports = {
 
       message.channel.send({ embeds: [embed] }).then((msg) => {
 
-        // Send data to the backend API
         axios.post('https://api.tonewebdesign.com/pa/regiments/create', {
           guildId: guildId,
           guildName: guildName,
