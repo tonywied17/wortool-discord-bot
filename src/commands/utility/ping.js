@@ -1,31 +1,10 @@
-/*
- * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\utility\ping.js
- * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
- * Created Date: Monday June 26th 2023
- * Author: Tony Wiedman
- * -----
- * Last Modified: Sat August 5th 2023 3:45:17 
- * Modified By: Tony Wiedman
- * -----
- * Copyright (c) 2023 Tone Web Design, Molex
- */
 const { EmbedBuilder } = require('discord.js');
 
-/**
- * Displays the bot's ping
- */
 module.exports = {
   name: "ping",
   description: "Ping command",
   aliases: ["pingie", "p"],
   category: "Utility",
-
-  /**
-   * @param {*} message - The message object that was sent to trigger this command
-   * @param {*} args - The arguments passed with this command
-   * @param {*} guildPrefix - The prefix for this guild
-   * @param {*} client - The Discord client
-   */
   async execute(message, args, guildPrefix, client) {
     try {
 
