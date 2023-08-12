@@ -4,14 +4,13 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:31:03 
+ * Last Modified: Sat August 12th 2023 1:12:31 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
-const fs = require('fs');
 const { EmbedBuilder } = require('discord.js');
-const guildsFolderPath = './guilds/';
+const axios = require('axios');
 
 /**
  * The `prefix` command changes the bot prefix.
@@ -36,29 +35,24 @@ module.exports = {
         return message.reply('Please provide a new prefix.');
       }
       const guildId = message.guild.id;
-      const guildConfigPath = `${guildsFolderPath}${guildId}.json`;
-
-      let guildConfig = {};
-      if (fs.existsSync(guildConfigPath)) {
-        guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-      }
-
       const newPrefix = args[0];
-      guildConfig.prefix = newPrefix;
 
-      fs.writeFile(guildConfigPath, JSON.stringify(guildConfig, null, 2), (err) => {
-        if (err) {
-          console.error(err);
-          return message.reply('An error occurred while updating the prefix.');
-        }
-
-        const embed = new EmbedBuilder()
+      axios.put(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/updatePrefix`, {
+        prefix: newPrefix
+      })
+        .then((response) => {
+          console.log(response);
+          const embed = new EmbedBuilder()
           .setColor("#425678")
           .setTitle('Prefix Updated')
           .setDescription(`The bot prefix has been updated to: \`${newPrefix}\`, use \`${newPrefix}help\` to see available commands.`);
 
-        message.channel.send({ embeds: [embed] });
-      });
+          message.channel.send({ embeds: [embed] });
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      
     } catch (error) {
       console.error(error);
       message.reply('An error occurred while executing the prefix command.');
