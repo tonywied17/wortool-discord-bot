@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:32:36 
+ * Last Modified: Sat August 12th 2023 1:45:39 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -35,14 +35,32 @@ module.exports = {
    */
   async execute(message, args, guildPrefix, client) {
     const guildId = message.guild.id;
-    const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
-    const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-    const prefix = guildConfig && guildConfig.prefix ? guildConfig.prefix : config.defaultPrefix;
+    let prefix = '';
 
-    if(!args[0] || (args[0].toUpperCase() !== 'USA' && args[0].toUpperCase() !== 'CSA')) {
+    try {
+      const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      prefix = response.data.prefix;
+
+    } catch (error) {
+      console.error(error);
+
+      const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
+      const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
+
+      prefix = guildConfig.prefix || config.defaultPrefix;
+    }
+
+
+
+    if (!args[0] || (args[0].toUpperCase() !== 'USA' && args[0].toUpperCase() !== 'CSA')) {
       return message.reply(`Please choose a side. \`${prefix}setup <usa/csa>\``);
     }
- 
+
     try {
       let invite = await message.channel.createInvite({
         maxAge: 0, // 0 = infinite expiration
@@ -61,6 +79,16 @@ module.exports = {
       let memberCount = message.guild.memberCount;
       console.log(message.guild.memberCount)
 
+      const allMembers = await message.guild.members.fetch();
+      const memberData = allMembers.map(member => {
+        return {
+          id: member.id,
+          nickname: member.nickname || member.user.username,
+          avatarURL: member.user.displayAvatarURL({ format: 'jpg', dynamic: true })
+        };
+      });
+
+
       const embed = new EmbedBuilder()
         .setColor("#425678")
         .setTitle("Regiment Setup Information")
@@ -78,6 +106,13 @@ module.exports = {
         .setTimestamp();
 
 
+
+      /**
+       * Use an axios post request to send the guild data to the API.
+       * @param {string} url - The API endpoint
+       * @param {object} data - The guild data
+       * @returns {Promise<void>}
+       */
       message.channel.send({ embeds: [embed] }).then((msg) => {
 
         axios.post('https://api.tonewebdesign.com/pa/regiments/create', {
@@ -88,15 +123,17 @@ module.exports = {
           ownerId: ownerId,
           side: side,
           memberCount: memberCount,
+          members: memberData,
+          prefix: prefix
         })
-        .then(response => {
-          console.log(response.data);
-          message.reply(`Your regiment's discord data has been synchronized to the application.`);
-        })
-        .catch(error => {
-          console.error(error);
-          msg.react('❌');
-        });
+          .then(response => {
+            console.log(response.data);
+            message.reply(`Your regiment's discord data has been synchronized to the application.`);
+          })
+          .catch(error => {
+            console.error(error);
+            msg.react('❌');
+          });
       });
 
     } catch (error) {

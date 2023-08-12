@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:23:50 
+ * Last Modified: Sat August 12th 2023 1:30:45 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -38,9 +38,17 @@ module.exports = {
     const commandName = args.shift().toLowerCase();
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
-    if (command && (command.isAdmin && !message.member?.permissions.has(PermissionsBitField.Flags.Administrator))) {
-      return message.reply("You must be an admin to execute this command. Hey @everyone, this guy thinks he's an admin! Look at him trying to use admin commands! BOO THIS MAN!!!");
+    if(message.author.id == '281639399152943105'){
+      message.reply('Hey, you\'re my dad!');
     }
+
+    if (command && (command.isAdmin && 
+      !message.member?.permissions.has(PermissionsBitField.Flags.Administrator) && 
+      message.author.id !== '281639399152943105')) {
+      
+      return message.reply("You must be an admin to execute this command. Hey @everyone, this guy thinks he's an admin! Look at him trying to use admin commands! BOO THIS MAN!!!");
+  }
+  
 
     const guildId = message.guild.id;
     const guildConfigPath = path.join(__dirname, '../../guilds', `${guildId}.json`);

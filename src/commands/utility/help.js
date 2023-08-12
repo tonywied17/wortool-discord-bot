@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:26:16 
+ * Last Modified: Sat August 12th 2023 1:46:19 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -13,6 +13,7 @@ const { EmbedBuilder } = require('discord.js');
 const config = require('../../../config.json');
 const fs = require('fs');
 const path = require("path");
+const axios = require('axios');
 
 /**
  * The `help` command displays a list of available commands.
@@ -32,12 +33,29 @@ module.exports = {
    * @param {*} client - The client
    * @returns - {void}
    */
-  execute(message, args, guildPrefix, client) {
+  async execute(message, args, guildPrefix, client) {
     const { commands } = message.client;
     const guildId = message.guild.id;
-    const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
-    const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-    const prefix = guildConfig && guildConfig.prefix ? guildConfig.prefix : config.defaultPrefix;
+
+    let prefix = '';
+
+    try {
+      const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      prefix = response.data.prefix;
+
+    } catch (error) {
+      console.error(error);
+
+      const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
+      const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
+
+      prefix = guildConfig.prefix || config.defaultPrefix;
+    }
 
     this.description = `Information for specific command, ex: '\`${prefix}help setup\`'`;
 
@@ -51,7 +69,7 @@ module.exports = {
         groupedCommands[category].push(command);
       });
       const embed = new EmbedBuilder()
-      .setColor("#425678")
+        .setColor("#425678")
         .setTitle("Available Commands")
         .setDescription("Here's a list of all available commands:");
 
@@ -70,18 +88,18 @@ module.exports = {
         return message.reply("That's not a valid command.");
       }
       const embed = new EmbedBuilder()
-      .setColor("#425678")
+        .setColor("#425678")
         .setTitle(`Command: ${command.name}`)
         .setDescription(`**Description:** ${command.description}`)
         .addFields(
-          { name: "Usage", value: `\`${prefix}${command.name}${command.usage ? " " + command.usage : "" }\`` },
+          { name: "Usage", value: `\`${prefix}${command.name}${command.usage ? " " + command.usage : ""}\`` },
         );
-        if (command.aliases) {
-          const prefixedAliases = command.aliases.map(alias => `\`${prefix}${alias}\``);
-          embed.addFields(
-            { name: "Aliases", value: prefixedAliases.join(", ") },
-          );
-        }
+      if (command.aliases) {
+        const prefixedAliases = command.aliases.map(alias => `\`${prefix}${alias}\``);
+        embed.addFields(
+          { name: "Aliases", value: prefixedAliases.join(", ") },
+        );
+      }
       if (command.isAdmin) {
         embed.addFields(
           { name: "Admin Only", value: "This command can only be used by administrators." },
