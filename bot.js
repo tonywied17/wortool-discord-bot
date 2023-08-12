@@ -4,7 +4,7 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:12:57 
+ * Last Modified: Sat August 12th 2023 1:38:37 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -21,6 +21,8 @@ const guildMemberRemove = require('./src/events/guildMemberRemove');
 const guildUpdate = require('./src/events/guildUpdate');
 
 const config = require('./config.json');
+
+const axios = require('axios');
 
 const client = new Client({
   intents: [
@@ -62,27 +64,33 @@ client.on('guildUpdate', (oldGuild, newGuild) => {
 
 /**
  * The `messageCreate` event is emitted when a message is created.
+ * This function will execute the command if it exists using either the guild's prefix or the default prefix.
  * @param {Message} message The created message
  * @returns {Promise<void>}
  */
-client.on('messageCreate', message => {
+client.on('messageCreate', async message => { 
   const guildId = message.guild?.id;
+  let guildPrefix = config.defaultPrefix;
+
   if (!guildId) return;
 
-  const guildConfigPath = path.join(__dirname, 'guilds', `${guildId}.json`);
-  let guildPrefix = config.defaultPrefix; 
-
-  if (fs.existsSync(guildConfigPath)) {
-    try {
-      const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-      guildPrefix = guildConfig.prefix || config.defaultPrefix; 
-    } catch (error) {
-      console.error(`Error parsing guild config file for guild ${guildId}:`, error);
-    }
+  try {
+    const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    guildPrefix = response.data.prefix;
+  } catch (error) {
+    const guildConfigPath = path.join(__dirname, 'guilds', `${guildId}.json`);
+    console.log(error);
+    const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
+    guildPrefix = guildConfig.prefix || config.defaultPrefix; 
   }
-
   messageCreate.execute(client, guildPrefix, message); 
 });
+
 
 /**
  * Logs the client in, establishing a websocket connection to Discord.
