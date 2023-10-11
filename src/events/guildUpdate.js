@@ -4,12 +4,13 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:17:20 
+ * Last Modified: Wed October 11th 2023 4:14:31 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
+const bearerToken = process.env.AUTH_SECRET
 
 /**
  * The `guildUpdate` event is emitted whenever a guild is updated - e.g. server name, guild avatar change.
@@ -39,7 +40,13 @@ module.exports = {
       guildAvatar: newGuild.iconURL()
     };
 
-    axios.put(`https://api.tonewebdesign.com/pa/regiments/updateDiscord`, updateData)
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${bearerToken}`
+      }
+    };
+
+    axios.put(`https://api.tonewebdesign.com/pa/regiments/updateDiscord`, updateData, config)
       .then((res) => {
         console.log(`statusCode: ${res.status}`);
         console.log(res.data);
