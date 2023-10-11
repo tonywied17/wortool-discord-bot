@@ -4,7 +4,7 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 12th 2023 1:38:37 
+ * Last Modified: Wed October 11th 2023 4:11:22 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -19,7 +19,8 @@ const messageCreate = require('./src/events/messageCreate');
 const guildMemberAdd = require('./src/events/guildMemberAdd');
 const guildMemberRemove = require('./src/events/guildMemberRemove');
 const guildUpdate = require('./src/events/guildUpdate');
-
+require('dotenv').config()
+// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const config = require('./config.json');
 
 const axios = require('axios');
@@ -70,7 +71,7 @@ client.on('guildUpdate', (oldGuild, newGuild) => {
  */
 client.on('messageCreate', async message => { 
   const guildId = message.guild?.id;
-  let guildPrefix = config.defaultPrefix;
+  let guildPrefix = process.env.DEFAULT_PREFIX;
 
   if (!guildId) return;
 
@@ -97,4 +98,4 @@ client.on('messageCreate', async message => {
  * @param {string} token The token of the account to log in with
  * @returns {Promise<string>} Token of the account used
  */
-client.login(config.token);
+client.login(process.env.TOKEN);
