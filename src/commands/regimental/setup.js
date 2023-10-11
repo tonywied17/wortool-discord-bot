@@ -4,17 +4,18 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 12th 2023 1:45:39 
+ * Last Modified: Wed October 11th 2023 4:17:51 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
-const config = require('../../../config.json');
+require('dotenv').config()
+// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const fs = require('fs');
 const path = require("path");
-
+const bearerToken = process.env.AUTH_SECRET
 /**
  * The `setup` command adds a regiment to the application.
  */
@@ -52,7 +53,7 @@ module.exports = {
       const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
       const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
 
-      prefix = guildConfig.prefix || config.defaultPrefix;
+      prefix = guildConfig.prefix || process.env.DEFAULT_PREFIX;
     }
 
 
@@ -106,6 +107,11 @@ module.exports = {
         .setTimestamp();
 
 
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${bearerToken}`,
+          }
+        };
 
       /**
        * Use an axios post request to send the guild data to the API.
@@ -125,10 +131,10 @@ module.exports = {
           memberCount: memberCount,
           members: memberData,
           prefix: prefix
-        })
+        }, config)
           .then(response => {
             console.log(response.data);
-            message.reply(`Your regiment's discord data has been synchronized to the application.`);
+            message.reply(`Your regiment's discord data has been synchronized to the application.\n ## You may have to re-login to WoRTool to access the dashboards.`);
           })
           .catch(error => {
             console.error(error);
