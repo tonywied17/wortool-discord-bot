@@ -4,14 +4,15 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 12th 2023 1:45:39 
+ * Last Modified: Wed October 11th 2023 4:12:11 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
-const config = require('../../../config.json');
+require('dotenv').config()
+// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const fs = require('fs');
 const path = require("path");
 
@@ -52,7 +53,7 @@ module.exports = {
       const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
       const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
 
-      prefix = guildConfig.prefix || config.defaultPrefix;
+      prefix = guildConfig.prefix || process.env.DEFAULT_PREFIX;
     }
 
 
@@ -128,7 +129,7 @@ module.exports = {
         })
           .then(response => {
             console.log(response.data);
-            message.reply(`Your regiment's discord data has been synchronized to the application.`);
+            message.reply(`Your regiment's discord data has been synchronized to the application.\n ## You may have to re-login to WoRTool to access the dashboards.`);
           })
           .catch(error => {
             console.error(error);

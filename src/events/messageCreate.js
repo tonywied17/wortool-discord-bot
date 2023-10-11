@@ -4,13 +4,13 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 12th 2023 1:30:45 
+ * Last Modified: Wed October 11th 2023 4:12:40 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const { PermissionsBitField } = require('discord.js');
-const config = require('../../config.json');
+
 const fs = require('fs');
 const path = require('path');
 
@@ -39,7 +39,7 @@ module.exports = {
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
     if(message.author.id == '281639399152943105'){
-      message.reply('Hey, you\'re my dad!');
+      // message.reply('Hey, you\'re my dad!');
     }
 
     if (command && (command.isAdmin && 

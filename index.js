@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:10:37 
+ * Last Modified: Wed October 11th 2023 4:11:12 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -12,13 +12,13 @@
 
 const { ShardingManager } = require('discord.js');
 const path = require('path');
-const config = require('./config.json');
-
+// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
+require('dotenv').config()
 /**
  * The `ShardingManager` class manages the creation of shards and communication with the Discord API.
  */
 const manager = new ShardingManager(path.join(__dirname, 'bot.js'), {
-  token: config.token,
+  token: process.env.TOKEN,
 });
 
 /**
