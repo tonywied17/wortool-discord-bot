@@ -4,13 +4,13 @@
  * Created Date: Friday August 4th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:16:45 
+ * Last Modified: Wed October 11th 2023 4:18:54 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
-
+const bearerToken = process.env.AUTH_SECRET
 /**
  * The `guildMemberRemove` event is emitted whenever a member leaves a guild, or is kicked.
  * @param {GuildMember} member The member that left the guild
@@ -31,9 +31,15 @@ module.exports = {
 
     console.log(`A member has left the guild: ${member.user.tag}`);
     
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${bearerToken}`
+      }
+    };
+
     axios.post(`https://api.tonewebdesign.com/pa/regiments/${guildId}/membercount`, {
       memberCount: memberCount,
-    })
+    }, config)
     .then((res) => {
       console.log(`statusCode: ${res.statusCode}`)
       console.log(res)

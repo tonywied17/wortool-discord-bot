@@ -4,13 +4,12 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 12th 2023 1:46:19 
+ * Last Modified: Wed October 11th 2023 4:10:00 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const { EmbedBuilder } = require('discord.js');
-const config = require('../../../config.json');
 const fs = require('fs');
 const path = require("path");
 const axios = require('axios');
@@ -54,7 +53,7 @@ module.exports = {
       const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
       const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
 
-      prefix = guildConfig.prefix || config.defaultPrefix;
+      prefix = guildConfig.prefix || process.env.DEFAULT_PREFIX;
     }
 
     this.description = `Information for specific command, ex: '\`${prefix}help setup\`'`;
