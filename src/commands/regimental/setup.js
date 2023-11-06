@@ -1,10 +1,10 @@
 /*
  * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
- * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Project: c:\Users\tonyw\AppData\Local\Temp\scp58597\home\bots\ReggieBot\src\commands\regimental
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed October 11th 2023 4:17:51 
+ * Last Modified: Sat November 4th 2023 2:58:46 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -129,7 +129,7 @@ module.exports = {
           ownerId: ownerId,
           side: side,
           memberCount: memberCount,
-          members: memberData,
+          // members: memberData,
           prefix: prefix
         }, config)
           .then(response => {
