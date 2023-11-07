@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Mon November 6th 2023 7:46:04 
+ * Last Modified: Tue November 7th 2023 2:43:32 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -20,7 +20,7 @@ const path = require("path");
  */
 module.exports = {
     name: "schedule",
-    description: "Add/Update your regiment's Discord server to the application.",
+    description: "View the upcoming events for today and tomorrow.",
     aliases: ["today", "events", "upcoming"],
     category: "Regimental",
     isAdmin: false,
