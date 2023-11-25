@@ -1,39 +1,33 @@
 /*
  * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
- * Project: c:\Users\tonyw\AppData\Local\Temp\scp15880\home\bots\ReggieBot\src\commands\regimental
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Tue November 7th 2023 2:43:32 
+ * Last Modified: Sat November 25th 2023 10:42:03 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config()
-// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const fs = require('fs');
 const path = require("path");
-/**
- * The `schedule` command list the upcoming events for the regiment
- */
+
+const data = new SlashCommandBuilder()
+  .setName('schedule')
+  .setDescription('View the upcoming events for today and tomorrow.');
+
 module.exports = {
     name: "schedule",
     description: "View the upcoming events for today and tomorrow.",
     aliases: ["today", "events", "upcoming"],
     category: "Regimental",
     isAdmin: false,
-
-    /**
-     * @param {*} message - The message
-     * @param {*} args - The arguments
-     * @param {*} guildPrefix - The guild prefix
-     * @param {*} client - The client
-     * @returns - {void}
-     */
-    async execute(message, args, guildPrefix, client) {
-        const guildId = message.guild.id;
+    data,
+    async execute(message, args, guildPrefix, client, interaction) {
+        const guildId = (interaction ? interaction.guild.id : message.guild.id);
         let prefix = '';
 
         try {
@@ -46,17 +40,13 @@ module.exports = {
             prefix = response.data.prefix;
 
         } catch (error) {
-            console.error(error);
-
-            const guildConfigPath = path.join(__dirname, '../../../guilds', `${guildId}.json`);
-            const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-
-            prefix = guildConfig.prefix || process.env.DEFAULT_PREFIX;
+            prefix = process.env.DEFAULT_PREFIX;
         }
 
         try {
-            const guildId = message.guild.id;
-            const guildAvatar = message.guild.iconURL();
+
+            const guildId = (interaction ? interaction.guild.id : message.guild.id);
+            const guildAvatar = (interaction ? interaction.guild.iconURL() : message.guild.iconURL());
         
             const todayName = new Date().toLocaleString('en-US', {
                 weekday: 'long',
@@ -76,7 +66,7 @@ module.exports = {
             const data = response.data;
         
             if (data.length === 0) {
-                message.channel.send('There are no upcoming events.');
+                (interaction ? interaction.reply('There are no upcoming events.') : message.channel.send('There are no upcoming events.'));
                 return;
             }
         
@@ -114,11 +104,15 @@ module.exports = {
             }
         
             embed.fields = fields;
-        
-            message.channel.send({ embeds: [embed] });
+
+            if (interaction) {
+                interaction.reply({ embeds: [embed] });
+            } else {
+                message.channel.send({ embeds: [embed] });
+            }
         } catch (error) {
             console.error(error);
-            message.reply("An error occurred.");
+            (interaction ? interaction.reply("An error occurred.") : message.reply("An error occurred."));
         }
         
 
@@ -128,6 +122,6 @@ module.exports = {
             const hours12 = hours % 12 || 12; 
             const time12 = `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
             return time12;
-          }
+        }
     }
 };
