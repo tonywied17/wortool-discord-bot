@@ -4,13 +4,13 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed October 11th 2023 4:11:22 
+ * Last Modified: Sat November 25th 2023 11:44:14 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const { loadCommands } = require('./src/handlers/commandHandler');
@@ -22,7 +22,7 @@ const guildUpdate = require('./src/events/guildUpdate');
 require('dotenv').config()
 // require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const config = require('./config.json');
-
+let guildPrefix = process.env.DEFAULT_PREFIX;
 const axios = require('axios');
 
 const client = new Client({
@@ -40,7 +40,7 @@ client.commands = new Collection();
  * Loads all commands from the `commands` folder.
  * @param {Client} client The client
  */
-loadCommands(client, './src/commands');
+loadCommands(client, path.join(__dirname, '/commands/'));
 
 /**
  * The `ready` event is emitted when the client becomes ready to start working.
@@ -62,35 +62,37 @@ client.on('guildMemberRemove', member => {
 client.on('guildUpdate', (oldGuild, newGuild) => {
   guildUpdate.execute(oldGuild, newGuild);
 });
-
-/**
- * The `messageCreate` event is emitted when a message is created.
- * This function will execute the command if it exists using either the guild's prefix or the default prefix.
- * @param {Message} message The created message
- * @returns {Promise<void>}
- */
+//messageCreate - message commands
 client.on('messageCreate', async message => { 
-  const guildId = message.guild?.id;
-  let guildPrefix = process.env.DEFAULT_PREFIX;
+  messageCreate.execute(client, guildPrefix, message)
+});
+// debugging? i forget honestly
+client.on('debug', console.log);
+// interaction/ slash command proccessing...
+client.on(Events.InteractionCreate, async interaction => {
+  console.log(`Interaction received: ${interaction.id} | ${interaction.type}`);
+  if (!interaction.isCommand()) return;
 
-  if (!guildId) return;
+  const { commandName } = interaction;
+  console.log(`Received interaction for command: ${commandName}`);
+
+  if (!client.commands.has(commandName)) {
+    console.log(`Command not found: ${commandName}`);
+    return;
+  }
+
+
 
   try {
-    const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
-    });
-    guildPrefix = response.data.prefix;
+    let message, args = "";
+    await client.commands.get(commandName).execute(message, args, guildPrefix, client, interaction);
+    console.log(`Command executed: ${commandName}`);
   } catch (error) {
-    const guildConfigPath = path.join(__dirname, 'guilds', `${guildId}.json`);
-    console.log(error);
-    const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-    guildPrefix = guildConfig.prefix || config.defaultPrefix; 
+    console.error(error);
+    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
   }
-  messageCreate.execute(client, guildPrefix, message); 
 });
+
 
 
 /**

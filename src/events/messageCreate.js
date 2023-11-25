@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed October 11th 2023 4:12:40 
+ * Last Modified: Sat November 25th 2023 10:07:29 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -31,7 +31,29 @@ module.exports = {
    * @param {*} message - The created message
    * @returns - {Promise<void>}
    */
-  execute(client, prefix, message) {
+  async execute(client, prefix, message) {
+    const guildId = message.guild?.id;
+    let guildPrefix = prefix || process.env.DEFAULT_PREFIX;
+    
+
+  
+    if (!guildId) return;
+  
+    try {
+      const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      guildPrefix = response.data.prefix;
+    } catch (error) {
+
+
+      guildPrefix = process.env.DEFAULT_PREFIX; 
+    }
+    
+    
     if (message.author.bot || !message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);
@@ -49,25 +71,11 @@ module.exports = {
       return message.reply("You must be an admin to execute this command. Hey @everyone, this guy thinks he's an admin! Look at him trying to use admin commands! BOO THIS MAN!!!");
   }
   
-
-    const guildId = message.guild.id;
-    const guildConfigPath = path.join(__dirname, '../../guilds', `${guildId}.json`);
-    let guildPrefix = prefix;
-
-    if (fs.existsSync(guildConfigPath)) {
-      try {
-        const guildConfig = JSON.parse(fs.readFileSync(guildConfigPath, 'utf8'));
-        guildPrefix = guildConfig.prefix || prefix;
-        console.log(`Guild ID: ${guildId}`);
-        console.log(`Guild Prefix: ${guildPrefix}`);
-      } catch (error) {
-        console.error(`Error parsing guild config file for guild ${guildId}:`, error);
-      }
-    }
-
-    if (command) {
-      console.log(`Executing command: ${command.name}`);
-      command.execute(message, args, guildPrefix, client);
-    }
+  if (command) {
+    console.log(`Executing command: ${command.name}`);
+    command.execute(message, args, guildPrefix, client);
+  }
+  
+    
   },
 };

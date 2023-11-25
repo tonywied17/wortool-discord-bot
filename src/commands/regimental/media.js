@@ -1,22 +1,24 @@
 /*
  * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
- * Project: c:\Users\tonyw\AppData\Local\Temp\scp42087\home\bots\ReggieBot\src\commands\regimental
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Tue November 7th 2023 2:52:30 
+ * Last Modified: Sat November 25th 2023 10:39:32 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config()
 // require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const fs = require('fs');
 const path = require("path");
 const download = require('image-downloader');
-
+const data = new SlashCommandBuilder()
+  .setName('media')
+  .setDescription('Add Discord image attachments to your WoRTool media gallery');
 /**
  * The `schedule` command list the upcoming events for the regiment
  */
@@ -26,7 +28,7 @@ module.exports = {
     aliases: ["gallery", "g", "pics"],
     category: "Regimental",
     isAdmin: true,
-
+    data,
     /**
      * @param {*} message - The message
      * @param {*} args - The arguments
@@ -34,10 +36,14 @@ module.exports = {
      * @param {*} client - The client
      * @returns - {void}
      */
-    async execute(message, args, guildPrefix, client) {
-        const guildId = message.guild.id;
+    async execute(message, args, guildPrefix, client, interaction) {
+        const guildId = (interaction ? interaction.guild.id : message.guild.id);
         let prefix = '';
         let regimentId = '';
+
+        if(interaction){
+            await interaction.reply('Attachments are not supported on ephemeral responses (slash commands).\nPlease use the **wor.media** command in an attachment comment to upload to your gallery.')
+        }
 
         try {
             const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
@@ -63,7 +69,7 @@ module.exports = {
             const guildId = message.guild.id;
             
             if (!attachment) {
-                message.reply(`Please upload an image with this command as the comment. See **.gallery help** for more information`);
+                message.reply(`Please upload an image with this command as the comment. See **wor.help media** for more information`);
                 return;
             }
 
