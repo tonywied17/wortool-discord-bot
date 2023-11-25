@@ -4,23 +4,29 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 12th 2023 1:12:31 
+ * Last Modified: Sat November 25th 2023 11:39:29 
  * Modified By: Tony Wiedman
  * -----
- * Copyright (c) 2023 Tone Web Design, Molex
+ * Copyright (c) 2023 MolexWorks / Tone Web Design
  */
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 
-/**
- * The `prefix` command changes the bot prefix.
- */
+const data = new SlashCommandBuilder()
+  .setName('prefix')
+  .setDescription("Change the bot prefix")
+  .addStringOption(option =>
+    option.setName('newprefix')
+      .setDescription('New prefix')
+      .setRequired(true)
+  );
+
 module.exports = {
   name: 'prefix',
   description: 'Change the bot prefix',
   usage: '<new prefix>',
   isAdmin: true,
-
+  data,
   /**
    * The `prefix` command changes the bot prefix.
    * @param {*} message - The message
@@ -29,33 +35,28 @@ module.exports = {
    * @param {*} client - The client
    * @returns - {void}
    */
-  execute(message, args, guildPrefix, client) {
+  async execute(message, args, guildPrefix, client, interaction) {
     try {
-      if (!args.length) {
-        return message.reply('Please provide a new prefix.');
+      const guildId = interaction ? interaction.guildId : message.guild.id;
+      const newPrefix = interaction ? interaction.options.getString('newprefix') : args[0];
+
+      if (!newPrefix) {
+        return interaction ? interaction.reply('Please provide a new prefix.') : message.reply('Please provide a new prefix.');
       }
-      const guildId = message.guild.id;
-      const newPrefix = args[0];
 
-      axios.put(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/updatePrefix`, {
+      await axios.put(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/updatePrefix`, {
         prefix: newPrefix
-      })
-        .then((response) => {
-          console.log(response);
-          const embed = new EmbedBuilder()
-          .setColor("#425678")
-          .setTitle('Prefix Updated')
-          .setDescription(`The bot prefix has been updated to: \`${newPrefix}\`, use \`${newPrefix}help\` to see available commands.`);
+      });
 
-          message.channel.send({ embeds: [embed] });
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-      
+      const embed = new EmbedBuilder()
+        .setColor("#425678")
+        .setTitle('Prefix Updated')
+        .setDescription(`The bot prefix has been updated to: \`${newPrefix}\`, use \`${newPrefix}help\` to see available commands.`);
+
+      return interaction ? interaction.reply({ embeds: [embed] }) : message.channel.send({ embeds: [embed] });
     } catch (error) {
       console.error(error);
-      message.reply('An error occurred while executing the prefix command.');
+      return interaction ? interaction.reply('An error occurred while executing the prefix command.') : message.reply('An error occurred while executing the prefix command.');
     }
   },
 };

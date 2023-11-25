@@ -1,62 +1,72 @@
+
 /*
  * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\utility\ping.js
  * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat August 5th 2023 10:30:24 
+ * Last Modified: Sat November 25th 2023 11:39:37 
  * Modified By: Tony Wiedman
  * -----
- * Copyright (c) 2023 Tone Web Design, Molex
+ * Copyright (c) 2023 MolexWorks / Tone Web Design
  */
-const { EmbedBuilder } = require('discord.js');
 
-/**
- * The `ping` command is used to check the bot's latency.
- */
+
+const { EmbedBuilder, SlashCommandBuilder, MessageActionRow, MessageButton } = require('discord.js');
 module.exports = {
   name: "ping",
   description: "Ping command",
   aliases: ["pingie", "p"],
   category: "Utility",
+  data: new SlashCommandBuilder()
+    .setName('ping')
+    .setDescription('Replies with Pong!'),
 
-  /**
-   * The `ping` command is used to check the bot's latency.
-   * @param {*} message - The message
-   * @param {*} args - The arguments
-   * @param {*} guildPrefix - The guild prefix
-   * @param {*} client - The client
-   */
-  async execute(message, args, guildPrefix, client) {
-    try {
+  async execute(message, args, guildPrefix, client, interaction) {
+    const startTime = Date.now();
 
-      const startTime = Date.now();
+    if (interaction) {
+      const botLatency = Date.now() - interaction.createdTimestamp;
+      const apiLatency = interaction.client.ws.ping;
 
-      const embed = new EmbedBuilder()
-        .setColor("#425678")
-        .setTitle("Pinging...")
-        .setTimestamp();
-
-      const sentMessage = await message.channel.send({ embeds: [embed] });
-      const botLatency = sentMessage.createdTimestamp - message.createdTimestamp;
-      const apiLatency = client.ws.ping;
-
-      const endTime = Date.now();
-
-      embed.setTitle("Pong!")
-        .addFields(
+      const embed = {
+        color: parseInt("425678", 16),
+        title: "Pong!",
+        fields: [
           { name: "Bot Latency", value: botLatency + "ms" },
           { name: "API Latency", value: apiLatency + "ms" }
-        )
-        .setFooter({ text: `Roundtrip Time: ${endTime - startTime}ms` });
+        ],
+        timestamp: new Date(),
+        footer: { text: `Roundtrip Time: ${Date.now() - startTime}ms` }
+      };
 
-      sentMessage.edit({ embeds: [embed] });
+      interaction.reply({ embeds: [embed] });
+    } else {
+      try {
+        const embed = {
+          color: parseInt("425678", 16),
+          title: "Pinging...",
+          timestamp: new Date()
+        };
 
-    } catch (error) {
+        const sentMessage = await message.channel.send({ embeds: [embed] });
 
-      console.error(error);
-      message.reply("An error occurred while executing the ping command.");
-      
+        const botLatency = sentMessage.createdTimestamp - message.createdTimestamp;
+        const apiLatency = sentMessage.client.ws.ping;
+
+        embed.title = "Pong!";
+        embed.fields = [
+          { name: "Bot Latency", value: botLatency + "ms" },
+          { name: "API Latency", value: apiLatency + "ms" }
+        ];
+        embed.footer = { text: `Roundtrip Time: ${Date.now() - startTime}ms` };
+
+        sentMessage.edit({ embeds: [embed] });
+
+      } catch (error) {
+        console.error(error);
+        message.reply("An error occurred while executing the ping command.");
+      }
     }
   }
 };
