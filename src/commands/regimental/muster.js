@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Tue November 28th 2023 11:46:11 
+ * Last Modified: Wed November 29th 2023 3:32:06 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -31,7 +31,7 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('channels')
-        .setDescription('Get information about events/drills in a specific voice channel.')
+        .setDescription('Award a muster to an entire voice channel\'s connected user\'s.')
         .addStringOption(option =>
           option
             .setName('type')
@@ -53,7 +53,7 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('users')
-        .setDescription('Manually select users for mustering.')
+        .setDescription('Award a muster to a single selected user.')
         .addStringOption(option =>
           option
             .setName('type')
@@ -76,7 +76,7 @@ module.exports = {
   async execute(message, args, guildPrefix, client, interaction) {
 
     const guildId = (interaction ? interaction.guild.id : message.guild.id);
-
+    const guildAvatar = (interaction ? interaction.guild.iconURL() : message.guild.iconURL());
     if (interaction.options.getSubcommand() === 'users') {
 
       try {
@@ -135,8 +135,16 @@ module.exports = {
           return `> \`${user.nickname || user.username}\`  |  **${updatedCount}** ${uCase(eventType)}s`;
         });
 
+        const embed = new EmbedBuilder()
+          .setColor("#425678")
+          .setTitle(`${uCase(eventType)} Muster`)
+          .setThumbnail(guildAvatar)
+          .addFields({ name: `\`${enlistedUsersData.length}\` User's Mustered`, value: `${userMusterList.join('\n')}` })
+          .setTimestamp();
+
+          // {  }
         const replyMessage = await interaction.reply({
-          content: `\`${enlistedUsersData.length} users\` were manually selected.\n\n**${uCase(eventType)} Muster**\n${userMusterList.join('\n')}`,
+          embeds: [embed],
           ephemeral: false,
           fetchReply: true,
         });
@@ -210,8 +218,15 @@ module.exports = {
           return `> \`${member.nickname || member.username}\`  |  **${eventType === 'event' ? member.events : member.drills}** ${uCase(eventType)}s`;
         });
 
+        const embed = new EmbedBuilder()
+          .setColor("#425678")
+          .setTitle(`${uCase(eventType)} Muster`)
+          .setThumbnail(guildAvatar)
+          .addFields({ name: `\`${enlistedChannelMembers.length}\` User's Mustered`, value: `${membersList.join('\n')}` })
+          .setTimestamp();
+
         const replyMessage = await interaction.reply({
-          content: `\`${enlistedChannelMembers.length} enlisted users\` were found in ${selectedChannel}.\n\n**${uCase(eventType)} Muster**\n${membersList.join('\n')}`,
+          embeds: [embed],
           ephemeral: false,
           fetchReply: true,
         });

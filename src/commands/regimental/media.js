@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat November 25th 2023 10:39:32 
+ * Last Modified: Wed November 29th 2023 3:38:37 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -17,8 +17,8 @@ const fs = require('fs');
 const path = require("path");
 const download = require('image-downloader');
 const data = new SlashCommandBuilder()
-  .setName('media')
-  .setDescription('Add Discord image attachments to your WoRTool media gallery');
+    .setName('media')
+    .setDescription('Add Discord image attachments to your WoRTool media gallery');
 /**
  * The `schedule` command list the upcoming events for the regiment
  */
@@ -41,7 +41,7 @@ module.exports = {
         let prefix = '';
         let regimentId = '';
 
-        if(interaction){
+        if (interaction) {
             await interaction.reply('Attachments are not supported on ephemeral responses (slash commands).\nPlease use the **wor.media** command in an attachment comment to upload to your gallery.')
         }
 
@@ -67,7 +67,7 @@ module.exports = {
         try {
             const attachment = message.attachments.first();
             const guildId = message.guild.id;
-            
+
             if (!attachment) {
                 message.reply(`Please upload an image with this command as the comment. See **wor.help media** for more information`);
                 return;
@@ -76,38 +76,38 @@ module.exports = {
             const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff', 'image/svg+xml'];
             if (!allowedMimeTypes.includes(attachment.contentType)) {
                 message.reply('Please upload a valid image with this command as the comment.');
-            return;
-    }
-        
+                return;
+            }
+
             let random = `gallery-item-${makeId(5)}.jpg`
             let localUrl = `https://api.tonewebdesign.com/pa/regiments/${regimentId}/files/${random}`
             let filePath = `/home/tonewebdesign/public_html/api.tonewebdesign.com/pa-api/resources/${regimentId}/static/assets/uploads/${random}`
-            
+
 
             const options = {
                 url: attachment.url,
-                dest: filePath, 
+                dest: filePath,
             };
 
             download.image(options)
-                    .then(({ filename }) => {
-                        console.log('Saved to', filename);
-                    })
-                    .catch((err) => console.error(err));
+                .then(({ filename }) => {
+                    console.log('Saved to', filename);
+                })
+                .catch((err) => console.error(err));
 
             message.react('🖼️')
 
-            
+
         } catch (error) {
             console.error(error);
             message.reply("An error occurred.");
         }
-        
+
         function makeId(length) {
-            var result           = '';
-            var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             var charactersLength = characters.length;
-            for ( var i = 0; i < length; i++ ) {
+            for (var i = 0; i < length; i++) {
                 result += characters.charAt(Math.floor(Math.random() * charactersLength));
             }
             return result;
