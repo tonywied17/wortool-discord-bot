@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat November 25th 2023 10:07:29 
+ * Last Modified: Mon November 27th 2023 10:48:19 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -69,6 +69,10 @@ module.exports = {
       message.author.id !== '281639399152943105')) {
       
       return message.reply("You must be an admin to execute this command. Hey @everyone, this guy thinks he's an admin! Look at him trying to use admin commands! BOO THIS MAN!!!");
+  }
+
+  if (command && (command.isDev && message.author.id !== '281639399152943105')) {
+    return message.reply("This command is reserved for developers/testing.")
   }
   
   if (command) {

@@ -4,13 +4,13 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat November 25th 2023 11:44:14 
+ * Last Modified: Tue November 28th 2023 11:42:19 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const { loadCommands } = require('./src/handlers/commandHandler');
@@ -19,6 +19,7 @@ const messageCreate = require('./src/events/messageCreate');
 const guildMemberAdd = require('./src/events/guildMemberAdd');
 const guildMemberRemove = require('./src/events/guildMemberRemove');
 const guildUpdate = require('./src/events/guildUpdate');
+
 require('dotenv').config()
 // require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const config = require('./config.json');
@@ -31,10 +32,12 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildVoiceStates,
   ],
 });
 
 client.commands = new Collection();
+
 
 /**
  * Loads all commands from the `commands` folder.
@@ -48,7 +51,7 @@ loadCommands(client, path.join(__dirname, '/commands/'));
  */
 // guildCreate - Emitted whenever the client joins a guild.
 client.on('guildCreate', guild => {
-  guildCreate.execute(guild);
+  guildCreate.execute(guild, client);
 });
 // guildMemberAdd - Emitted whenever a user joins a guild.
 client.on('guildMemberAdd', member => {
@@ -75,13 +78,23 @@ client.on(Events.InteractionCreate, async interaction => {
 
   const { commandName } = interaction;
   console.log(`Received interaction for command: ${commandName}`);
+  
 
   if (!client.commands.has(commandName)) {
     console.log(`Command not found: ${commandName}`);
     return;
+    
   }
-
-
+  const command = client.commands.get(commandName);
+  if (command && (command.isAdmin && 
+    !interaction.member?.permissions.has(PermissionsBitField.Flags.Administrator) && 
+    interaction.user.id !== '281639399152943105')) {
+    
+    return interaction.reply("You must be an admin to execute this command.");
+  }
+  if (command && (command.isDev && interaction.author.id !== '281639399152943105')) {
+    return message.reply("This command is reserved for developers/testing.")
+  }
 
   try {
     let message, args = "";

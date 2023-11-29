@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat November 25th 2023 10:42:03 
+ * Last Modified: Sat November 25th 2023 10:46:07 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -70,7 +70,7 @@ module.exports = {
                 return;
             }
         
-            // Create an object to group events by schedule name
+
             const eventsBySchedule = {};
             data.forEach(schedule => {
                 if (!eventsBySchedule[schedule.schedule_name]) {
@@ -79,7 +79,7 @@ module.exports = {
                 if (!eventsBySchedule[schedule.schedule_name][schedule.day]) {
                     eventsBySchedule[schedule.schedule_name][schedule.day] = [];
                 }
-                eventsBySchedule[schedule.schedule_name][schedule.day].push(`${schedule.event_type} - ${convertTo12Hour(schedule.time)}`);
+                eventsBySchedule[schedule.schedule_name][schedule.day].push(`${schedule.event_type} @ ${convertToShortTime(schedule.time)}`);
             });
         
             console.log(data.schedule_name);
@@ -94,12 +94,12 @@ module.exports = {
         
             const fields = [];
         
-            // Iterate through the schedule names and their corresponding events
+
             for (const scheduleName in eventsBySchedule) {
-                fields.push({ name: scheduleName, value: '' }); // Title for the schedule
+                fields.push({ name: scheduleName, value: '' }); 
                 for (const day in eventsBySchedule[scheduleName]) {
                     const events = eventsBySchedule[scheduleName][day].join('\n');
-                    fields.push({ name: day, value: events }); // Add events for each day
+                    fields.push({ name: day, value: events });
                 }
             }
         
@@ -118,10 +118,17 @@ module.exports = {
 
         function convertTo12Hour(time24) {
             const [hours, minutes] = time24.split(':').map(Number);
-            const period = hours >= 12 ? 'PM' : 'AM';
-            const hours12 = hours % 12 || 12; 
-            const time12 = `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
-            return time12;
+            const now = new Date();
+            const timestamp = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes).getTime() / 1000);
+            return timestamp;
         }
+
+
+        function convertToShortTime(time24) {
+            const timestamp = convertTo12Hour(time24);
+            return `<t:${timestamp}:t>`;
+        }
+
+        
     }
 };

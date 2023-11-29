@@ -22,7 +22,7 @@ module.exports = {
 
   async execute(message, args, guildPrefix, client, interaction) {
     const { commands } = interaction ? interaction.client : message.client;
-    const guildId = interaction ? interaction.guildId : m;
+    const guildId = interaction ? interaction.guildId : message.guildId;
 
     let prefix = '';
 
