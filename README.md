@@ -1,2 +1,2 @@
-# paapp2-discord-bot
+# wortool-discord-bot
 Discord Bot for WorTool
