@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Tue November 28th 2023 10:52:58 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -43,7 +43,7 @@ module.exports = {
     let prefix = '';
 
     try {
-      const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+      const response = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -95,7 +95,7 @@ module.exports = {
         };
   
         interaction.reply({ embeds: [embed] }).then(() => {
-          axios.post('https://api.tonewebdesign.com/pa/regiments/create', {
+          axios.post('https://api.wortool.com/v2/regiments/create', {
             guildId: guildId,
             guildName: guildName,
             guildAvatar: guildAvatar,
@@ -165,8 +165,8 @@ module.exports = {
           .addFields({ name: "Invite", value: guildInvite })
           .addFields({ name: "Owner Discord ID", value: ownerId })
           .addFields({ name: "Owner Nickname", value: serverNickname })
-          // .addFields({ name: "Regiment API", value: "https://api.tonewebdesign.com/pa/regiments" })
-          // .addFields({ name: "Discord App API", value: `https://api.tonewebdesign.com/pa/discord/guild/${guildId}/get`})
+          // .addFields({ name: "Regiment API", value: "https://api.wortool.com/v2/regiments" })
+          // .addFields({ name: "Discord App API", value: `https://api.wortool.com/v2/discord/guild/${guildId}/get`})
           .setTimestamp();
   
   
@@ -184,7 +184,7 @@ module.exports = {
          */
         message.channel.send({ embeds: [embed] }).then((msg) => {
   
-          axios.post('https://api.tonewebdesign.com/pa/regiments/create', {
+          axios.post('https://api.wortool.com/v2/regiments/create', {
             guildId: guildId,
             guildName: guildName,
             guildAvatar: guildAvatar,

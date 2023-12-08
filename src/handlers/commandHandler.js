@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Thu November 30th 2023 2:13:42 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -49,7 +49,7 @@ module.exports = {
     }
     const rest = new REST().setToken(process.env.TOKEN);
     try {
-      const response = await axios.get('https://api.tonewebdesign.com/pa/regiments');
+      const response = await axios.get('https://api.wortool.com/v2/regiments');
       const guildData = response.data;
       const guildIds = guildData.map(data => data.guild_id);
       const commandData = commands.map(command => ({

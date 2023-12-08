@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed November 29th 2023 3:32:06 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -80,7 +80,7 @@ module.exports = {
     if (interaction.options.getSubcommand() === 'users') {
 
       try {
-        const response = await axios.get(`https://api.tonewebdesign.com/pa/musteruser/discord/${guildId}`, {
+        const response = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -112,7 +112,7 @@ module.exports = {
           });
 
         try {
-          const increaseResponse = await axios.put(`https://api.tonewebdesign.com/pa/musteruser/discord/increase/`, enlistedUsersData, {
+          const increaseResponse = await axios.put(`https://api.wortool.com/v2/musteruser/discord/increase/`, enlistedUsersData, {
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -169,7 +169,7 @@ module.exports = {
       }
 
       try {
-        const updatedResponse = await axios.get(`https://api.tonewebdesign.com/pa/musteruser/discord/${guildId}`, {
+        const updatedResponse = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -201,7 +201,7 @@ module.exports = {
         });
 
         try {
-          const increaseResponse = await axios.put(`https://api.tonewebdesign.com/pa/musteruser/discord/increase/`, enlistedChannelMembers, {
+          const increaseResponse = await axios.put(`https://api.wortool.com/v2/musteruser/discord/increase/`, enlistedChannelMembers, {
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

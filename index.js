@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed October 11th 2023 4:11:12 
+ * Last Modified: Fri December 8th 2023 10:27:12 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -12,7 +12,6 @@
 
 const { ShardingManager } = require('discord.js');
 const path = require('path');
-// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 require('dotenv').config()
 /**
  * The `ShardingManager` class manages the creation of shards and communication with the Discord API.

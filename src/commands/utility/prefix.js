@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat November 25th 2023 11:39:29 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 MolexWorks / Tone Web Design
@@ -44,7 +44,7 @@ module.exports = {
         return interaction ? interaction.reply('Please provide a new prefix.') : message.reply('Please provide a new prefix.');
       }
 
-      await axios.put(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/updatePrefix`, {
+      await axios.put(`https://api.wortool.com/v2/regiments/g/${guildId}/updatePrefix`, {
         prefix: newPrefix
       });
 

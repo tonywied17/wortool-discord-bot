@@ -4,7 +4,7 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed October 11th 2023 4:14:31 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -46,7 +46,7 @@ module.exports = {
       }
     };
 
-    axios.put(`https://api.tonewebdesign.com/pa/regiments/updateDiscord`, updateData, config)
+    axios.put(`https://api.wortool.com/v2/regiments/updateDiscord`, updateData, config)
       .then((res) => {
         console.log(`statusCode: ${res.status}`);
         console.log(res.data);
