@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed November 29th 2023 3:38:33 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -64,7 +64,7 @@ module.exports = {
         let prefix = '';
         let regimentId = '';
         try {
-            const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+            const response = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -125,7 +125,7 @@ module.exports = {
                     embed.setTimestamp();
 
                     interaction.reply({ embeds: [embed] }).then(() => {
-                        axios.post('https://api.tonewebdesign.com/pa/musteruser/create', usersData, config)
+                        axios.post('https://api.wortool.com/v2/musteruser/create', usersData, config)
                             .then(response => {
                                 console.log(response.data);
                                 interaction.followUp(`## Success!\n> You may now muster the enlisted user's by using \`/muster\`\n> If user's were already enlisted no stats or dates will be affected, only new users will be enlisted.`)
@@ -173,7 +173,7 @@ module.exports = {
                     embed.setTimestamp();
 
                     interaction.reply({ embeds: [embed] }).then(() => {
-                        axios.post('https://api.tonewebdesign.com/pa/musteruser/create', usersData, config)
+                        axios.post('https://api.wortool.com/v2/musteruser/create', usersData, config)
                             .then(response => {
                                 console.log(response.message);
                                 interaction.followUp(`## Success!\n> You may now muster the enlisted user's by using \`/muster\`\n> If user's were already enlisted no stats or dates will be affected, only new users will be enlisted.`)

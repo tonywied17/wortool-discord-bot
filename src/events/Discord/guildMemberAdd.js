@@ -4,7 +4,7 @@
  * Created Date: Friday August 4th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Thu November 30th 2023 1:46:25 
+ * Last Modified: Fri December 8th 2023 10:19:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -37,7 +37,7 @@ module.exports = {
       }
     };
 
-    axios.post(`https://api.tonewebdesign.com/pa/regiments/${guildId}/membercount`, {
+    axios.post(`https://api.wortool.com/v2/regiments/${guildId}/membercount`, {
       memberCount: memberCount,
     }, config)
     .then((res) => {

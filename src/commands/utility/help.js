@@ -27,7 +27,7 @@ module.exports = {
     let prefix = '';
 
     try {
-      const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+      const response = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'

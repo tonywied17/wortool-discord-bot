@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Wed November 29th 2023 3:38:37 
+ * Last Modified: Fri December 8th 2023 10:27:13 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -12,7 +12,6 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config()
-// require("dotenv").config({ path: "/home/tonewebdesign/envs/pa/.env" });
 const fs = require('fs');
 const path = require("path");
 const download = require('image-downloader');
@@ -46,7 +45,7 @@ module.exports = {
         }
 
         try {
-            const response = await axios.get(`https://api.tonewebdesign.com/pa/regiments/g/${guildId}/discordGuild`, {
+            const response = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -80,8 +79,8 @@ module.exports = {
             }
 
             let random = `gallery-item-${makeId(5)}.jpg`
-            let localUrl = `https://api.tonewebdesign.com/pa/regiments/${regimentId}/files/${random}`
-            let filePath = `/home/tonewebdesign/public_html/api.tonewebdesign.com/pa-api/resources/${regimentId}/static/assets/uploads/${random}`
+            let localUrl = `https://api.wortool.com/v2/regiments/${regimentId}/files/${random}`
+            let filePath = `/home/paarmy/public_html/api.wortool.com/wor-api/resources/${regimentId}/static/assets/uploads/${random}`
 
 
             const options = {
