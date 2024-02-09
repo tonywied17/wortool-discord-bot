@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri December 8th 2023 10:19:27 
+ * Last Modified: Fri February 9th 2024 11:22:20 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -20,11 +20,6 @@ const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toStr
 
 
 module.exports = {
-  name: "muster",
-  description: "Award a muster record for an Event or Drill.",
-  usage: `Can only be used as a slash command use \`\\muster\``,
-  category: "Regimental",
-  isAdmin: true,
   data: new SlashCommandBuilder()
     .setName('muster')
     .setDescription('Award a muster record for an Event or Drill.')
@@ -73,10 +68,10 @@ module.exports = {
     ),
 
 
-  async execute(message, args, guildPrefix, client, interaction) {
+  async execute(interaction) {
 
-    const guildId = (interaction ? interaction.guild.id : message.guild.id);
-    const guildAvatar = (interaction ? interaction.guild.iconURL() : message.guild.iconURL());
+    const guildId = interaction.guild.id;
+    const guildAvatar = interaction.guild.iconURL();
     if (interaction.options.getSubcommand() === 'users') {
 
       try {
@@ -99,8 +94,8 @@ module.exports = {
             console.log('Processing Enlisted User:', enlistedUser);
 
             const userData = {
-              username: enlistedUser.username,
-              nickname: enlistedUser.nickname,
+              username: enlistedUser.username.replace(/[&\/\\#,+()$~%'`":]/g, ''),
+              nickname: enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, ''),
               discordId: enlistedUser.discordId,
               regimentId: enlistedUser.regimentId,
               events: `${eventType === 'event' ? enlistedUser.events + 1 : enlistedUser.events }`,
@@ -132,7 +127,7 @@ module.exports = {
             updatedCount = user.events;
           }
 
-          return `> \`${user.nickname || user.username}\`  |  **${updatedCount}** ${uCase(eventType)}s`;
+          return `> \`${user.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') || user.username.replace(/[&\/\\#,+()$~%'`":]/g, '')}\`  |  **${updatedCount}** ${uCase(eventType)}s`;
         });
 
         const embed = new EmbedBuilder()
@@ -190,8 +185,8 @@ module.exports = {
           if (enlistedUser) {
             const memberInfo = {
               discordId: enlistedUser.discordId,
-              username: channelMember.username,
-              nickname: enlistedUser.nickname,
+              username: channelMember.username.replace(/[&\/\\#,+()$~%'`":]/g, ''),
+              nickname: enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, ''),
               regimentId: enlistedUser.regimentId,
               events: `${eventType === 'event' ? enlistedUser.events + 1 : enlistedUser.events }`,
               drills: `${eventType === 'drill' ? enlistedUser.drills + 1 : enlistedUser.drills }`,
@@ -215,7 +210,7 @@ module.exports = {
         }
 
         const membersList = enlistedChannelMembers.map((member) => {
-          return `> \`${member.nickname || member.username}\`  |  **${eventType === 'event' ? member.events : member.drills}** ${uCase(eventType)}s`;
+          return `> \`${member.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') || member.username.replace(/[&\/\\#,+()$~%'`":]/g, '')}\`  |  **${eventType === 'event' ? member.events : member.drills}** ${uCase(eventType)}s`;
         });
 
         const embed = new EmbedBuilder()

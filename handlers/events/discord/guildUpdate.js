@@ -4,21 +4,20 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri December 8th 2023 10:19:27 
+ * Last Modified: Fri February 9th 2024 10:32:48 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
 const bearerToken = process.env.AUTH_SECRET
-
+const { Events } = require('discord.js');
 /**
  * The `guildUpdate` event is emitted whenever a guild is updated - e.g. server name, guild avatar change.
  * @param {Guild} oldGuild The guild before the update
  */
 module.exports = {
-  name: 'guildUpdate',
-
+  name: Events.GuildUpdate,
   /**
    * The `guildUpdate` event is emitted whenever a guild is updated - e.g. server name, guild avatar change.
    * @param {*} oldGuild - The guild before the update
