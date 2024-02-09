@@ -4,20 +4,29 @@
  * Created Date: Saturday August 5th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Thu November 30th 2023 2:11:01 
+ * Last Modified: Fri February 9th 2024 10:41:16 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 
-const { Client, Collection, Events, GatewayIntentBits, PermissionsBitField } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-const { loadCommands } = require('./src/handlers/commandHandler');
-const discordEvents = require('./src/events/Discord')
-require('dotenv').config()
+const { Client, Collection, GatewayIntentBits, REST, Routes } = require('discord.js');
+const fs = require('node:fs');
+const path = require('node:path');
+let fetch;
+import('node-fetch').then(module => {
+    fetch = module.default;
+});
+
 let guildPrefix = process.env.DEFAULT_PREFIX;
 
+require('dotenv').config();
+const token = process.env.TOKEN;
+const clientId = process.env.CLIENT_ID;
+
+/**
+ * Discord Client Intents
+ */
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -25,68 +34,71 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildVoiceStates,
-  ],
+  ]
 });
 
+/**
+ * Client Commands
+ * @type {Collection<string, any>}
+ * @description The client commands are handled in the commands directory.
+ * The command files are named after the command they handle and are in the format of:
+ * command-name.js
+ */
 client.commands = new Collection();
-/**
- * Loads all commands from the `commands` folder.
- * @param {Client} client The client
- */
-loadCommands(client, path.join(__dirname, '/commands/'));
+const commands = [];
+const commandsPath = path.join(__dirname, 'commands');
+const commandFolders = fs.readdirSync(commandsPath);
+for (const folder of commandFolders) {
+  const folderPath = path.join(commandsPath, folder);
+  const commandFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
+  for (const file of commandFiles) {
+    const filePath = path.join(folderPath, file);
+    const command = require(filePath);
+    if ('data' in command && 'execute' in command) {
+      commands.push(command.data.toJSON());
+      client.commands.set(command.data.name, command);
+    } else {
+      console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+    }
+  }
+}
 
 /**
- * The `ready` event is emitted when the client becomes ready to start working.
- * @param {Client} client The client
+ * Client Events
+ * @type {Collection<string, any>}
+ * @description The client events are handled in the handlers/events/discord directory.
+ * The event files are named after the event they handle and are in the format of:
+ * event-name.js
  */
-client.on('ready', client => {
-  discordEvents.onReady.execute(client);
-})
-// guildCreate - Emitted whenever the client joins a guild.
-client.on('guildCreate', guild => {
-  discordEvents.guildCreate.execute(guild, client);
-});
-// guildMemberAdd - Emitted whenever a user joins a guild.
-client.on('guildMemberAdd', member => {
-  discordEvents.guildMemberAdd.execute(member);
-});
-// guildMemberRemove - Emitted whenever a member leaves a guild, or is kicked.
-client.on('guildMemberRemove', member => {
-  discordEvents.guildMemberRemove.execute(member);
-});
-// guildUpdate - Emitted whenever a guild is updated - e.g. server name, guild avatar change.
-client.on('guildUpdate', (oldGuild, newGuild) => {
-  discordEvents.guildUpdate.execute(oldGuild, newGuild);
-});
-//messageCreate - message commands
-client.on('messageCreate', async message => { 
-  discordEvents.messageCreate.execute(client, guildPrefix, message)
-});
-client.on('debug', console.log);
+const eventsPath = path.join(__dirname, 'handlers/events/discord');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+for (const file of eventFiles) {
+	const filePath = path.join(eventsPath, file);
+	const event = require(filePath);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args));
+	} else {
+		client.on(event.name, (...args) => event.execute(...args));
+	}
+}
 
-client.on(Events.InteractionCreate, async interaction => {
-  if (!interaction.isCommand()) return;
-  const { commandName } = interaction;
-  if (!client.commands.has(commandName)) {
-    return;
-  }
-  const command = client.commands.get(commandName);
-  if (command && (command.isAdmin && 
-    !interaction.member?.permissions.has(PermissionsBitField.Flags.Administrator) && 
-    interaction.user.id !== '281639399152943105')) {
-    return interaction.reply("You must be an admin to execute this command.");
-  }
-  if (command && (command.isDev && interaction.author.id !== '281639399152943105')) {
-    return message.reply("This command is reserved for developers/testing.")
-  }
+/**
+ * Register Application Commands
+ * @description This will register the application commands for the bot.
+ */
+const rest = new REST().setToken(token);
+(async () => {
   try {
-    let message, args = "";
-    await client.commands.get(commandName).execute(message, args, guildPrefix, client, interaction);
+    console.log(`Started refreshing application (/) commands.`);
+    await rest.put(
+      Routes.applicationCommands(clientId),
+      { body: commands },
+    );
+    console.log(`Successfully reloaded application (/) commands.`);
   } catch (error) {
     console.error(error);
-    await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
   }
-});
+})();
 
 /**
  * Logs the client in, establishing a websocket connection to Discord.

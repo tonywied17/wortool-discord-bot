@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri December 8th 2023 10:19:27 
+ * Last Modified: Fri February 9th 2024 10:21:51 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -12,22 +12,16 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config()
-const fs = require('fs');
-const path = require("path");
 
 const data = new SlashCommandBuilder()
   .setName('schedule')
   .setDescription('View the upcoming events for today and tomorrow.');
 
 module.exports = {
-    name: "schedule",
-    description: "View the upcoming events for today and tomorrow.",
-    aliases: ["today", "events", "upcoming"],
-    category: "Regimental",
-    isAdmin: false,
     data,
-    async execute(message, args, guildPrefix, client, interaction) {
-        const guildId = (interaction ? interaction.guild.id : message.guild.id);
+    async execute(interaction) {
+        const guildId = interaction.guild.id;
+        const guildAvatar = interaction.guild.iconURL();
         let prefix = '';
 
         try {
@@ -38,38 +32,26 @@ module.exports = {
                 }
             });
             prefix = response.data.prefix;
-
         } catch (error) {
+            console.error(error);
             prefix = process.env.DEFAULT_PREFIX;
         }
 
         try {
-
-            const guildId = (interaction ? interaction.guild.id : message.guild.id);
-            const guildAvatar = (interaction ? interaction.guild.iconURL() : message.guild.iconURL());
-        
-            const todayName = new Date().toLocaleString('en-US', {
-                weekday: 'long',
-            });
-        
-            const requestData = {
-                day: todayName,
-            };
-        
+            const todayName = new Date().toLocaleString('en-US', { weekday: 'long' });
+            const requestData = { day: todayName };
             const response = await axios.post(`https://api.wortool.com/v2/regiments/discord/${guildId}/schedules/day/`, requestData, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             });
-        
+
             const data = response.data;
-        
             if (data.length === 0) {
-                (interaction ? interaction.reply('There are no upcoming events.') : message.channel.send('There are no upcoming events.'));
+                interaction.reply('There are no upcoming events.');
                 return;
             }
-        
 
             const eventsBySchedule = {};
             data.forEach(schedule => {
@@ -81,40 +63,23 @@ module.exports = {
                 }
                 eventsBySchedule[schedule.schedule_name][schedule.day].push(`${schedule.event_type} @ ${convertToShortTime(schedule.time)}`);
             });
-        
-            console.log(data.schedule_name);
-        
-            const embed = { 
-                color: 0x425678,
-                title: "Upcoming Schedule", 
-                description: 'Scheduled events for the upcoming days', 
-                thumbnail: { url: guildAvatar }, 
-                fields: []
-            };
-        
-            const fields = [];
-        
 
-            for (const scheduleName in eventsBySchedule) {
-                fields.push({ name: scheduleName, value: '' }); 
-                for (const day in eventsBySchedule[scheduleName]) {
-                    const events = eventsBySchedule[scheduleName][day].join('\n');
-                    fields.push({ name: day, value: events });
-                }
-            }
-        
-            embed.fields = fields;
+            const embed = new EmbedBuilder()
+                .setColor(0x425678)
+                .setTitle("Upcoming Schedule")
+                .setDescription('Scheduled events for the upcoming days')
+                .setThumbnail(guildAvatar)
+                .addFields(
+                    Object.entries(eventsBySchedule).flatMap(([scheduleName, days]) =>
+                        Object.entries(days).map(([day, events]) => ({ name: day, value: events.join('\n') }))
+                    )
+                );
 
-            if (interaction) {
-                interaction.reply({ embeds: [embed] });
-            } else {
-                message.channel.send({ embeds: [embed] });
-            }
+            interaction.reply({ embeds: [embed] });
         } catch (error) {
             console.error(error);
-            (interaction ? interaction.reply("An error occurred.") : message.reply("An error occurred."));
+            interaction.reply("An error occurred.");
         }
-        
 
         function convertTo12Hour(time24) {
             const [hours, minutes] = time24.split(':').map(Number);
@@ -123,12 +88,9 @@ module.exports = {
             return timestamp;
         }
 
-
         function convertToShortTime(time24) {
             const timestamp = convertTo12Hour(time24);
             return `<t:${timestamp}:t>`;
         }
-
-        
     }
 };
