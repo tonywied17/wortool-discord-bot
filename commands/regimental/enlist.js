@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri December 8th 2023 10:19:27 
+ * Last Modified: Fri February 9th 2024 10:36:32 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -19,10 +19,6 @@ const currentDate = new Date();
 const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
 module.exports = {
-    name: "enlist",
-    description: "Enlist User's into your Regiment's Roster",
-    category: "Regimental",
-    isAdmin: true,
     data: new SlashCommandBuilder()
         .setName('enlist')
         .setDescription('Enlist User\'s into your Regiment\'s Roster')
@@ -50,8 +46,8 @@ module.exports = {
         ),
 
 
-    async execute(message, args, guildPrefix, client, interaction) {
-        const guildId = (interaction ? interaction.guild.id : message.guild.id);
+    async execute(interaction) {
+        const guildId = interaction.guild.id;
 
         const selectedRoles = interaction.options.getRole('role');
         const selectedUsers = [interaction.options.getUser('target')];
@@ -60,7 +56,7 @@ module.exports = {
         console.log('Selected Users:', selectedUsers);
 
 
-        const guildAvatar = (interaction ? interaction.guild.iconURL() : message.guild.iconURL());
+        const guildAvatar = interaction.guild.iconURL();
         let prefix = '';
         let regimentId = '';
         try {
@@ -78,7 +74,7 @@ module.exports = {
         }
 
 
-        if (interaction) {
+
 
             if (interaction.options.getSubcommand() === 'role') {
                 try {
@@ -190,7 +186,6 @@ module.exports = {
                 interaction.reply(`No Subcommand`)
             }
 
-        }
 
     }
 

@@ -1,36 +1,36 @@
 /*
- * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\events\guildMemberAdd.js
+ * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\events\guildMemberRemove.js
  * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Friday August 4th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri December 8th 2023 10:19:27 
+ * Last Modified: Fri February 9th 2024 10:31:38 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
  */
-
+const { Events } = require('discord.js');
 const axios = require('axios');
 const bearerToken = process.env.AUTH_SECRET
 /**
- * The `guildMemberAdd` event is emitted whenever a user joins a guild.
- * @param {GuildMember} member The member that joined the guild
+ * The `guildMemberRemove` event is emitted whenever a member leaves a guild, or is kicked.
+ * @param {GuildMember} member The member that left the guild
  * @returns {void}
  */
 module.exports = {
-  name: 'guildMemberAdd',
-  
+  name: Events.GuildMemberRemove,
   /**
-   * The `guildMemberAdd` event is emitted whenever a user joins a guild.
-   * @param {*} member - The member that joined the guild
+   * The `guildMemberRemove` event is emitted whenever a member leaves a guild, or is kicked.
+   * @param {*} member - The member that left the guild
+   * @returns {void}
    */
-  execute(member) {
+  async execute(member) {
     const guild = member.guild;
     const guildId = guild.id;
     const memberCount = guild.memberCount;
 
-    console.log(`A member has joined the guild: ${member.user.tag}`);
-
+    console.log(`A member has left the guild: ${member.user.tag}`);
+    
     const config = {
       headers: {
         'Authorization': `Bearer ${bearerToken}`
@@ -48,6 +48,6 @@ module.exports = {
     .catch((error) => {
       console.error(error)
     })
-
+    
   },
 };
