@@ -1,202 +1,105 @@
-/*
- * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
- * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
- * Created Date: Monday June 26th 2023
- * Author: Tony Wiedman
- * -----
- * Last Modified: Fri February 9th 2024 10:36:32
- * Modified By: Tony Wiedman
- * -----
- * Copyright (c) 2023 Tone Web Design, Molex
- */
 const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
 const axios = require("axios");
 require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
-const bearerToken = process.env.AUTH_SECRET;
 const currentDate = new Date();
-const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1)
-  .toString()
-  .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
+const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
+const bearerToken = process.env.AUTH_SECRET;
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("enlist")
-    .setDescription("Enlist User's into your Regiment's Roster")
-    .addSubcommand((subcommand) =>
+    .setDescription("Enlist users into your Regiment's Roster")
+    .addSubcommand(subcommand =>
       subcommand
         .setName("role")
-        .setDescription("Mass enlist user's by a selected role.")
-        .addRoleOption((option) =>
-          option
-            .setName("role")
-            .setDescription("Select a Discord Role")
-            .setRequired(true)
+        .setDescription("Mass enlist users by a selected role.")
+        .addRoleOption(option =>
+          option.setName("role").setDescription("Select a Discord Role").setRequired(true)
         )
     )
-    .addSubcommand((subcommand) =>
+    .addSubcommand(subcommand =>
       subcommand
         .setName("users")
         .setDescription("Manually select users for enlistment.")
-        .addUserOption((option) =>
-          option
-            .setName("target")
-            .setDescription("Select users.")
-            .setRequired(true)
+        .addUserOption(option =>
+          option.setName("target").setDescription("Select users.").setRequired(true)
         )
     ),
 
   async execute(interaction) {
     const guildId = interaction.guild.id;
-
-    const selectedRoles = interaction.options.getRole("role");
-    const selectedUsers = [interaction.options.getUser("target")];
-
-    // console.log('Selected Roles:', selectedRoles);
-    console.log("Selected Users:", selectedUsers);
-
     const guildAvatar = interaction.guild.iconURL();
-    let regimentId = "";
-    try {
-      const response = await axios.get(
-        `https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        }
-      );
-      regimentId = response.data.regimentId;
-    } catch (error) {
-      console.error(error);
-      prefix = process.env.DEFAULT_PREFIX;
-    }
+    const regimentIdResponse = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, {
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    });
+    const regimentId = regimentIdResponse.data.regimentId;
+
+    const existingUsersResponse = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
+      headers: { "Authorization": `Bearer ${bearerToken}` },
+    });
+    const existingUsers = existingUsersResponse.data;
+
+    let usersToProcess = [];
 
     if (interaction.options.getSubcommand() === "role") {
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${bearerToken}`,
-          },
-        };
-
-        const role = interaction.guild.roles.cache.find(
-          (r) => r.name === selectedRoles.name
-        );
-        await interaction.guild.members.fetch();
-
-        const membersWithRole = role.members.map((member) => ({
-          id: member.user.id,
-          username: member.user.username,
-          nickname: member.nickname,
-        }));
-
-        console.log(Array.from(membersWithRole));
-
-        const usersData = membersWithRole.map((member) => ({
-          nickname: member.nickname ? member.nickname : member.username,
-          discordId: member.id,
-          regimentId: regimentId,
-          events: 0,
-          drills: 0,
-          join_date: today,
-          last_muster: today,
-        }));
-
-        const embed = new EmbedBuilder()
-          .setColor("#425678")
-          .setTitle(`Roster Enlistment`)
-          .setThumbnail(guildAvatar);
-        usersData.forEach((userData, index) => {
-          const userMention = `<@${userData.discordId}>`;
-          embed.addFields({
-            name: `#${index + 1} ${userData.nickname}`,
-            value: `> ${userMention}\n> **Enlisted On** ${userData.join_date}`,
+      const role = interaction.options.getRole("role");
+      await interaction.guild.members.fetch();
+      role.members.forEach(member => {
+        if (!existingUsers.some(user => user.discordId === member.id)) {
+          usersToProcess.push({
+            discordId: member.id,
+            nickname: member.nickname || member.user.username,
           });
-        });
-        embed.setTimestamp();
-
-        interaction.reply({ embeds: [embed] }).then(() => {
-          axios
-            .post(
-              "https://api.wortool.com/v2/musteruser/create",
-              usersData,
-              config
-            )
-            .then((response) => {
-              console.log(response.data);
-              interaction.followUp(
-                `## Success!\n> You may now muster the enlisted user's by using \`/muster\`\n> If user's were already enlisted no stats or dates will be affected, only new users will be enlisted.`
-              );
-            })
-            .catch((error) => {
-              console.error(error);
-              interaction.followUp("❌ An error occurred");
-            });
-        });
-      } catch (err) {
-        interaction.reply(
-          `## Uh-Oh!\n> This role has more then \`25 user's\` which is the discord bot payload limit.\n> To mass enlist a higher populated role please use the [WoRTool App Enlister](https://wortool.com/mod/4)`
-        );
-        console.error(err);
-      }
+        }
+      });
+      console.log(`Filtered users to enlist: ${usersToProcess.length}`);
     } else if (interaction.options.getSubcommand() === "users") {
-      try {
-        const usersData = selectedUsers.map((user) => ({
-          nickname: user.nickname ? user.nickname : user.username,
+      const user = interaction.options.getUser("target");
+      if (!existingUsers.some(existingUser => existingUser.discordId === user.id)) {
+        usersToProcess.push({
           discordId: user.id,
-          regimentId: regimentId,
-          events: 0,
-          drills: 0,
-          join_date: today,
-          last_muster: today,
-        }));
+          nickname: user.username,
+        });
+      }
+    }
 
-        // Post the array of user data to create enlistments
-        const config = {
-          headers: {
-            Authorization: `Bearer ${bearerToken}`,
-          },
-        };
+    if (usersToProcess.length > 0) {
+      const usersData = usersToProcess.map(user => ({
+        discordId: user.discordId,
+        nickname: user.nickname,
+        regimentId: regimentId,
+        join_date: today,
+        last_muster: today,
+        events: 0,
+        drills: 0,
+      }));
+
+      try {
+        await axios.post("https://api.wortool.com/v2/musteruser/create", usersData, {
+          headers: { "Authorization": `Bearer ${bearerToken}` },
+        });
 
         const embed = new EmbedBuilder()
           .setColor("#425678")
-          .setTitle(`Roster Enlistment`)
-          .setThumbnail(guildAvatar);
-        usersData.forEach((userData, index) => {
-          const userMention = `<@${userData.discordId}>`;
+          .setTitle("Roster Enlistment")
+          .setThumbnail(guildAvatar)
+          .setDescription(`${usersData.length} user(s) enlisted successfully.`)
+          .setTimestamp();
+
+        usersData.forEach((user, index) => {
           embed.addFields({
-            name: `#${index + 1} ${userData.nickname}`,
-            value: `> ${userMention}\n> **Enlisted On** ${userData.join_date}`,
+            name: `#${index + 1} ${user.nickname}`,
+            value: `> <@${user.discordId}>\n> **Enlisted On**: ${today}`,
           });
         });
-        embed.setTimestamp();
 
-        interaction.reply({ embeds: [embed] }).then(() => {
-          axios
-            .post(
-              "https://api.wortool.com/v2/musteruser/create",
-              usersData,
-              config
-            )
-            .then((response) => {
-              console.log(response.message);
-              interaction.followUp(
-                `## Success!\n> You may now muster the enlisted user's by using \`/muster\`\n> If user's were already enlisted no stats or dates will be affected, only new users will be enlisted.`
-              );
-            })
-            .catch((error) => {
-              console.error(error);
-              interaction.followUp("❌ An error occurred");
-            });
-        });
-      } catch (err) {
-        console.error(err);
+        interaction.reply({ embeds: [embed] });
+      } catch (error) {
+        console.error("Error enlisting users:", error);
+        interaction.reply("An error occurred while enlisting users.");
       }
     } else {
-      interaction.reply(`No Subcommand`);
+      interaction.reply("All selected users are already enlisted or no valid users were selected.");
     }
   },
 };
