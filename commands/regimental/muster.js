@@ -1,10 +1,10 @@
 /*
  * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
- * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
+ * Project: c:\Users\tonyw\AppData\Local\Temp\scp22807\home\bots\ReggieBot\commands\regimental
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri February 9th 2024 11:22:20 
+ * Last Modified: Fri February 9th 2024 7:52:54 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -12,8 +12,6 @@
 const { EmbedBuilder, SlashCommandBuilder, ChannelType } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config()
-const fs = require('fs');
-const path = require("path");
 const bearerToken = process.env.AUTH_SECRET;
 const currentDate = new Date();
 const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
@@ -87,6 +85,7 @@ module.exports = {
 
         const eventType = interaction.options.getString('type');
         const selectedUsers = [interaction.options.getUser('target')];
+        
 
         const enlistedUsersData = await enlistedUsersSingle
           .filter((enlistedUser) => selectedUsers.some((user) => user.id === enlistedUser.discordId))
@@ -94,8 +93,8 @@ module.exports = {
             console.log('Processing Enlisted User:', enlistedUser);
 
             const userData = {
-              username: enlistedUser.username.replace(/[&\/\\#,+()$~%'`":]/g, ''),
-              nickname: enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, ''),
+              username: enlistedUser.username ? enlistedUser.username.replace(/[&\/\\#,+()$~%'`":]/g, '') : enlistedUser.username,
+              nickname: enlistedUser.nickname ? enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') : enlistedUser.nickname,
               discordId: enlistedUser.discordId,
               regimentId: enlistedUser.regimentId,
               events: `${eventType === 'event' ? enlistedUser.events + 1 : enlistedUser.events }`,
@@ -127,7 +126,7 @@ module.exports = {
             updatedCount = user.events;
           }
 
-          return `> \`${user.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') || user.username.replace(/[&\/\\#,+()$~%'`":]/g, '')}\`  |  **${updatedCount}** ${uCase(eventType)}s`;
+          return `> \`${user.nickname || user.username}\`  |  **${updatedCount}** ${uCase(eventType)}s`;
         });
 
         const embed = new EmbedBuilder()
@@ -148,6 +147,10 @@ module.exports = {
 
       } catch (error) {
         console.error('Error fetching or processing enlisted users:', error);
+        await interaction.reply({
+          content: `User was not found in the muster records.`,
+          ephemeral: true
+        });
       }
 
       return;
@@ -185,8 +188,8 @@ module.exports = {
           if (enlistedUser) {
             const memberInfo = {
               discordId: enlistedUser.discordId,
-              username: channelMember.username.replace(/[&\/\\#,+()$~%'`":]/g, ''),
-              nickname: enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, ''),
+              username: channelMember.username ? channelMember.username.replace(/[&\/\\#,+()$~%'`":]/g, '') : channelMember.username,
+              nickname: enlistedUser.nickname ? enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') : enlistedUser.nickname,
               regimentId: enlistedUser.regimentId,
               events: `${eventType === 'event' ? enlistedUser.events + 1 : enlistedUser.events }`,
               drills: `${eventType === 'drill' ? enlistedUser.drills + 1 : enlistedUser.drills }`,
@@ -210,7 +213,7 @@ module.exports = {
         }
 
         const membersList = enlistedChannelMembers.map((member) => {
-          return `> \`${member.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') || member.username.replace(/[&\/\\#,+()$~%'`":]/g, '')}\`  |  **${eventType === 'event' ? member.events : member.drills}** ${uCase(eventType)}s`;
+          return `> \`${member.nickname || member.username}\`  |  **${eventType === 'event' ? member.events : member.drills}** ${uCase(eventType)}s`;
         });
 
         const embed = new EmbedBuilder()

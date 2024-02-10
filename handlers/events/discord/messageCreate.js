@@ -28,8 +28,8 @@ module.exports = {
         delete waitingForImage[message.author.id];
 
         try {
-          const regimentsResponse = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`);
-          const regimentId = regimentsResponse.data.map(regiment => regiment.regimentId)[0];
+          const regimentsResponse = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`);
+          const regimentId = regimentsResponse.data.regimentId;
 
           let randomFilename = `gallery-item-${makeId(5)}.jpg`;
           let url = `[${message.guild.name}](<https://wortool.com/regiments/${regimentId}/>)`
