@@ -1,21 +1,23 @@
 /*
- * File: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot\src\commands\regimental\setup.js
- * Project: c:\Users\tonyw\AppData\Local\Temp\scp22807\home\bots\ReggieBot\commands\regimental
- * Created Date: Monday June 26th 2023
+ * File: setup.js
+ * Project: ReggieBot
+ * Description: Command for awarding muster records for Events or Drills.
  * Author: Tony Wiedman
- * -----
- * Last Modified: Fri February 9th 2024 7:52:54 
- * Modified By: Tony Wiedman
- * -----
- * Copyright (c) 2023 Tone Web Design, Molex
+ * Last Modified: Fri February 9th 2024
  */
+
 const { EmbedBuilder, SlashCommandBuilder, ChannelType } = require('discord.js');
 const axios = require('axios');
-require('dotenv').config()
+require('dotenv').config();
 const bearerToken = process.env.AUTH_SECRET;
-const currentDate = new Date();
-const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`;
 
+// Helper function to format dates
+const formatDate = (date) => {
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+};
+
+// Today's date in YYYY-MM-DD format
+const today = formatDate(new Date());
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -24,223 +26,104 @@ module.exports = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('channels')
-        .setDescription('Award a muster to an entire voice channel\'s connected user\'s.')
+        .setDescription('Award a muster to an entire voice channel\'s connected users.')
         .addStringOption(option =>
-          option
-            .setName('type')
-            .setDescription('Select event or drill.')
-            .setRequired(true)
-            .addChoices(
-              { name: 'Event', value: 'event' },
-              { name: 'Drill', value: 'drill' }
-            )
-        )
+          option.setName('type').setDescription('Select event or drill.').setRequired(true)
+            .addChoices({ name: 'Event', value: 'event' }, { name: 'Drill', value: 'drill' }))
         .addChannelOption(option =>
-          option
-            .setName('channel')
-            .setDescription('Select a voice channel.')
-            .setRequired(true)
-            .addChannelTypes(ChannelType.GuildVoice)
+          option.setName('channel').setDescription('Select a voice channel.').setRequired(true).addChannelTypes(ChannelType.GuildVoice)
         )
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('users')
-        .setDescription('Award a muster to a single selected user.')
+        .setDescription('Award a muster to selected users.')
         .addStringOption(option =>
-          option
-            .setName('type')
-            .setDescription('Select event or drill.')
-            .setRequired(true)
-            .addChoices(
-              { name: 'Event', value: 'event' },
-              { name: 'Drill', value: 'drill' }
-            )
-        )
+          option.setName('type').setDescription('Select event or drill.').setRequired(true)
+            .addChoices({ name: 'Event', value: 'event' }, { name: 'Drill', value: 'drill' }))
         .addUserOption(option =>
-          option
-            .setName('target')
-            .setDescription('Select users.')
-            .setRequired(true)
+          option.setName('target').setDescription('Select a user.').setRequired(true)
         )
     ),
 
-
   async execute(interaction) {
-
     const guildId = interaction.guild.id;
     const guildAvatar = interaction.guild.iconURL();
-    if (interaction.options.getSubcommand() === 'users') {
+    const eventType = interaction.options.getString('type');
+    let responseData, embed, replyMessage;
 
-      try {
-        const response = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-        enlistedUsersSingle = response.data;
+    const fetchEnlistedUsers = async () => {
+      const response = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+      });
+      return response.data;
+    };
 
-        console.log(enlistedUsersSingle)
+    const updateMusterRecords = async (usersData) => {
+      await axios.put(`https://api.wortool.com/v2/musteruser/discord/increase/`, usersData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${bearerToken}`,
+        },
+      });
+    };
 
-        const eventType = interaction.options.getString('type');
-        const selectedUsers = [interaction.options.getUser('target')];
-        
+    const processUsers = (users, singleUser = false) => {
+      const processedUsers = users.map(user => ({
+        ...user,
+        events: eventType === 'event' ? user.events + 1 : user.events,
+        drills: eventType === 'drill' ? user.drills + 1 : user.drills,
+        last_muster: today,
+      }));
 
-        const enlistedUsersData = await enlistedUsersSingle
-          .filter((enlistedUser) => selectedUsers.some((user) => user.id === enlistedUser.discordId))
-          .map((enlistedUser) => {
-            console.log('Processing Enlisted User:', enlistedUser);
+      updateMusterRecords(processedUsers).catch(console.error);
 
-            const userData = {
-              username: enlistedUser.username ? enlistedUser.username.replace(/[&\/\\#,+()$~%'`":]/g, '') : enlistedUser.username,
-              nickname: enlistedUser.nickname ? enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') : enlistedUser.nickname,
-              discordId: enlistedUser.discordId,
-              regimentId: enlistedUser.regimentId,
-              events: `${eventType === 'event' ? enlistedUser.events + 1 : enlistedUser.events }`,
-              drills: `${eventType === 'drill' ? enlistedUser.drills + 1 : enlistedUser.drills }`,
-              last_muster: today,
-            };
+      const musterList = processedUsers.map(user => `> \`${user.nickname || user.username}\`  |  **${eventType === 'event' ? user.events : user.drills}** ${capitalize(eventType)}s`);
+      embed = new EmbedBuilder()
+        .setColor("#425678")
+        .setTitle(`${capitalize(eventType)} Muster`)
+        .setThumbnail(guildAvatar)
+        .addFields({ name: `\`${processedUsers.length}\` User's Mustered`, value: musterList.join('\n') })
+        .setTimestamp();
 
-            return userData;
-          });
+      return embed;
+    };
 
-        try {
-          const increaseResponse = await axios.put(`https://api.wortool.com/v2/musteruser/discord/increase/`, enlistedUsersData, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${bearerToken}`,
-            },
-          });
+    const capitalize = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
-          console.log('Increase Response:', increaseResponse.data);
-        } catch (error) {
-          console.error('Error making increase request:', error);
+    try {
+      responseData = await fetchEnlistedUsers();
+
+      if (interaction.options.getSubcommand() === 'users') {
+        const selectedUser = interaction.options.getUser('target');
+        const enlistedUser = responseData.find(user => user.discordId === selectedUser.id);
+        if (!enlistedUser) throw new Error('## User not found in the muster records.\n Use `\\enlist` to add the user to the company roster.');
+
+        embed = processUsers([enlistedUser], true);
+      } else {
+        const selectedChannel = interaction.options.getChannel('channel');
+        if (selectedChannel.type !== ChannelType.GuildVoice) {
+          return interaction.reply('Please select a voice channel.');
         }
 
-        const userMusterList = await enlistedUsersData.map((user) => {
-          if (eventType === 'drill') {
-            updatedCount = user.drills;
-          } else if (eventType === 'event') {
-            updatedCount = user.events;
-          }
-
-          return `> \`${user.nickname || user.username}\`  |  **${updatedCount}** ${uCase(eventType)}s`;
-        });
-
-        const embed = new EmbedBuilder()
-          .setColor("#425678")
-          .setTitle(`${uCase(eventType)} Muster`)
-          .setThumbnail(guildAvatar)
-          .addFields({ name: `\`${enlistedUsersData.length}\` User's Mustered`, value: `${userMusterList.join('\n')}` })
-          .setTimestamp();
-
-          // {  }
-        const replyMessage = await interaction.reply({
-          embeds: [embed],
-          ephemeral: false,
-          fetchReply: true,
-        });
-
-        await replyMessage.react('✅');
-
-      } catch (error) {
-        console.error('Error fetching or processing enlisted users:', error);
-        await interaction.reply({
-          content: `User was not found in the muster records.`,
-          ephemeral: true
-        });
+        const channelMembers = selectedChannel.members.map(member => member.user);
+        const enlistedUsers = responseData.filter(user => channelMembers.some(channelMember => channelMember.id === user.discordId));
+        embed = processUsers(enlistedUsers);
       }
 
-      return;
-
-
-    } else {
-
-
-      const eventType = interaction.options.getString('type');
-      const selectedChannel = interaction.options.getChannel('channel');
-
-      if (selectedChannel.type !== ChannelType.GuildVoice) {
-        return interaction.reply('Please select a voice channel.');
-      }
-
-      try {
-        const updatedResponse = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-
-        enlistedUsersChannel = updatedResponse.data;
-
-        const channelMembers = [];
-        const enlistedChannelMembers = [];
-
-        await interaction.guild.channels.cache.get(selectedChannel.id).members.forEach((member) => {
-          channelMembers.push(member.user);
-        });
-
-        channelMembers.forEach((channelMember) => {
-          const enlistedUser = enlistedUsersChannel.find((user) => user.discordId === channelMember.id);
-          if (enlistedUser) {
-            const memberInfo = {
-              discordId: enlistedUser.discordId,
-              username: channelMember.username ? channelMember.username.replace(/[&\/\\#,+()$~%'`":]/g, '') : channelMember.username,
-              nickname: enlistedUser.nickname ? enlistedUser.nickname.replace(/[&\/\\#,+()$~%'`":]/g, '') : enlistedUser.nickname,
-              regimentId: enlistedUser.regimentId,
-              events: `${eventType === 'event' ? enlistedUser.events + 1 : enlistedUser.events }`,
-              drills: `${eventType === 'drill' ? enlistedUser.drills + 1 : enlistedUser.drills }`,
-            };
-            enlistedChannelMembers.push(memberInfo);
-          }
-        });
-
-        try {
-          const increaseResponse = await axios.put(`https://api.wortool.com/v2/musteruser/discord/increase/`, enlistedChannelMembers, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${bearerToken}`,
-            },
-          });
-
-          console.log('Increase Response:', increaseResponse.data);
-        } catch (error) {
-          console.error('Error making increase request:', error);
-        }
-
-        const membersList = enlistedChannelMembers.map((member) => {
-          return `> \`${member.nickname || member.username}\`  |  **${eventType === 'event' ? member.events : member.drills}** ${uCase(eventType)}s`;
-        });
-
-        const embed = new EmbedBuilder()
-          .setColor("#425678")
-          .setTitle(`${uCase(eventType)} Muster`)
-          .setThumbnail(guildAvatar)
-          .addFields({ name: `\`${enlistedChannelMembers.length}\` User's Mustered`, value: `${membersList.join('\n')}` })
-          .setTimestamp();
-
-        const replyMessage = await interaction.reply({
-          embeds: [embed],
-          ephemeral: false,
-          fetchReply: true,
-        });
-
-        await replyMessage.react('✅');
-      } catch (error) {
-        console.error('Error fetching or processing channel members:', error);
-      }
+      replyMessage = await interaction.reply({
+        embeds: [embed],
+        ephemeral: false,
+        fetchReply: true,
+      });
+      await replyMessage.react('✅');
+    } catch (error) {
+      console.error(error.message);
+      interaction.reply({
+        content: error.message || 'An error occurred while processing the command.',
+        ephemeral: true,
+      });
     }
-
-    return;
-
-    function uCase(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-
-  }
-}
+  },
+};
