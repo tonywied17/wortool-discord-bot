@@ -8,6 +8,8 @@ const data = new SlashCommandBuilder()
     .setDescription('Follow up with an image attachment to add to your WoRTool media gallery.');
 
 module.exports = {
+    isAdmin: false,
+    isRoleManager: true,
     data,
     async execute(interaction) {
         waitingForImage[interaction.user.id] = {

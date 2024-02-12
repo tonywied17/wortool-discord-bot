@@ -1,10 +1,10 @@
 /*
  * File: c:\Users\tonyw\Desktop\git-222-bot\222-discord-bot\commands\music\skip.js
- * Project: c:\Users\tonyw\Desktop\git-222-bot\222-discord-bot
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Saturday February 3rd 2024
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat February 3rd 2024 11:56:45 
+ * Last Modified: Mon February 12th 2024 1:48:27 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2024 MolexWorks / Tone Web Design
@@ -23,6 +23,8 @@ const {
  * @description Skips the currently playing song.
  */
 module.exports = {
+    isAdmin: false,
+    isRoleManager: false,
     data: new SlashCommandBuilder()
         .setName('skip')
         .setDescription('Skips the currently playing song.'),
