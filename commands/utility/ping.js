@@ -10,6 +10,8 @@ const {
  * @description Replies with Pong!
  */
 module.exports = {
+	isAdmin: false,
+    isRoleManager: false,
 	data: new SlashCommandBuilder()
 		.setName('ping')
 		.setDescription('Replies with Pong!'),
