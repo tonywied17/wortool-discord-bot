@@ -15,8 +15,12 @@ module.exports = {
     const userState = waitingForImage[message.author.id];
     if (!message.author.bot && message.attachments.size > 0 && userState && userState.channelId === message.channelId) {
       const member = message.guild.members.cache.get(message.author.id);
-      if (!member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        message.reply("You need admin permissions to upload images.");
+      
+      const hasAdminPermissions = member.permissions.has(PermissionsBitField.Flags.Administrator);
+      const hasWorToolManagerRole = member.roles.cache.some(role => role.name === "WoRTool Manager");
+
+      if (!(hasAdminPermissions || hasWorToolManagerRole)) {
+        message.reply("You need admin permissions or the 'WoRTool Manager' role to upload images.");
         return;
       }
 
@@ -32,7 +36,7 @@ module.exports = {
           const regimentId = regimentsResponse.data.regimentId;
 
           let randomFilename = `gallery-item-${makeId(5)}.jpg`;
-          let url = `[${message.guild.name}](<https://wortool.com/regiments/${regimentId}/>)`
+          let url = `[${message.guild.name}](<https://wortool.com/regiments/${regimentId}/>)`;
           let filePath = `/home/paarmy/public_html/api.wortool.com/wor-api/resources/${regimentId}/static/assets/uploads/${randomFilename}`;
 
           await download.image({ url: attachment.url, dest: filePath });
