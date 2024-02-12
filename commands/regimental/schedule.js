@@ -4,7 +4,7 @@
  * Created Date: Monday June 26th 2023
  * Author: Tony Wiedman
  * -----
- * Last Modified: Fri February 9th 2024 10:21:51 
+ * Last Modified: Mon February 12th 2024 1:48:08 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2023 Tone Web Design, Molex
@@ -18,6 +18,8 @@ const data = new SlashCommandBuilder()
   .setDescription('View the upcoming events for today and tomorrow.');
 
 module.exports = {
+    isAdmin: false,
+    isRoleManager: false,
     data,
     async execute(interaction) {
         const guildId = interaction.guild.id;

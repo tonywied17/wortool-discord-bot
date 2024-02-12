@@ -1,9 +1,9 @@
 /*
  * File: setup.js
- * Project: ReggieBot
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Description: Command for awarding muster records for Events or Drills.
  * Author: Tony Wiedman
- * Last Modified: Fri February 9th 2024
+ * Last Modified: Mon February 12th 2024 1:47:45 
  */
 
 const { EmbedBuilder, SlashCommandBuilder, ChannelType } = require('discord.js');
@@ -20,6 +20,8 @@ const formatDate = (date) => {
 const today = formatDate(new Date());
 
 module.exports = {
+  isAdmin: false,
+  isRoleManager: true,
   data: new SlashCommandBuilder()
     .setName('muster')
     .setDescription('Award a muster record for an Event or Drill.')

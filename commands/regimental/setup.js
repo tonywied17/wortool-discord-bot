@@ -4,6 +4,8 @@ require('dotenv').config();
 const bearerToken = process.env.AUTH_SECRET;
 
 module.exports = {
+  isAdmin: true,
+  isRoleManager: false,
   data: new SlashCommandBuilder()
     .setName('setup')
     .setDescription("Add/Update your regiment's Discord server to the application.")

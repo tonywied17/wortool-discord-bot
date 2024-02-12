@@ -1,10 +1,10 @@
 /*
  * File: c:\Users\tonyw\Desktop\git-222-bot\222-discord-bot\commands\music\play.js
- * Project: c:\Users\tonyw\Desktop\git-222-bot\222-discord-bot
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Saturday February 3rd 2024
  * Author: Tony Wiedman
  * -----
- * Last Modified: Mon February 5th 2024 12:30:00 
+ * Last Modified: Mon February 12th 2024 1:48:20 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2024 MolexWorks / Tone Web Design
@@ -36,6 +36,8 @@ global.players = global.players || new Map();
  * @options {string} query - The YouTube video URL or a search query
  */
 module.exports = {
+    isAdmin: false,
+    isRoleManager: false,
     data: new SlashCommandBuilder()
         .setName("play")
         .setDescription("Plays a YouTube video in your voice channel!")

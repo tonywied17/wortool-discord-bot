@@ -1,10 +1,10 @@
 /*
  * File: c:\Users\tonyw\Desktop\git-222-bot\222-discord-bot\commands\music\queue.js
- * Project: c:\Users\tonyw\Desktop\git-222-bot\222-discord-bot
+ * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Created Date: Saturday February 3rd 2024
  * Author: Tony Wiedman
  * -----
- * Last Modified: Sat February 3rd 2024 11:57:07 
+ * Last Modified: Mon February 12th 2024 1:48:24 
  * Modified By: Tony Wiedman
  * -----
  * Copyright (c) 2024 MolexWorks / Tone Web Design
@@ -21,6 +21,8 @@ const {
  * @description Displays the current music queue.
  */
 module.exports = {
+    isAdmin: false,
+    isRoleManager: false,
     data: new SlashCommandBuilder()
         .setName('queue')
         .setDescription('Displays the current music queue.'),

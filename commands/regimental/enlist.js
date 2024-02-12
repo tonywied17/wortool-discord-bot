@@ -6,6 +6,8 @@ const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toStr
 const bearerToken = process.env.AUTH_SECRET;
 
 module.exports = {
+  isAdmin: false,
+  isRoleManager: true,
   data: new SlashCommandBuilder()
     .setName("enlist")
     .setDescription("Enlist users into your Regiment's Roster")
