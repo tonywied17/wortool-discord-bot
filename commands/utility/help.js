@@ -14,7 +14,7 @@ module.exports = {
         const categories = fs.readdirSync(commandsPath).filter(file => fs.statSync(path.join(commandsPath, file)).isDirectory());
 
         const embed = new EmbedBuilder()
-            .setColor('#0099ff')
+            .setColor("#425678")
             .setTitle('Available Commands')
             .setDescription('Here are the commands sorted by category:');
 
@@ -64,7 +64,11 @@ module.exports = {
                 );
 
             await interaction.followUp({
-                content: `**WorTool Quick Links for Admins & WoRTool Managers**\nIf you want allow additional users access to management commands and features give them the "WoRTool Manager" role.`,
+                content: `## NCO Bot Commands
+- To allow your staff and NCO's access to the management slash commands (muster, enlist, media) assign them the \`WoRTool Manager\` role that was automatically created.
+## WorTool.com Web-Based Features
+- *You can have additional members sign up on wortool.com and join your regiment from their linked accounts section. Discord members do not need to be registered on wortool.com to be enlisted to the company muster tool. However, your NCO's will need to be registered to access the web-based tools below.*
+- *You can promote registered/enlisted user's to managers by selecting the "Manage Regiment" button below and then selecting the "Members" tab once the app launches. This will allow them access to the same Regimental Tools & Features you see below.*`,
                 components: [webLinksRow],
                 ephemeral: true
             }).catch(console.error);

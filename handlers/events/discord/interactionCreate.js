@@ -21,16 +21,22 @@ module.exports = {
             return;
         }
 
-        if (command.isAdmin && !interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await interaction.reply({ content: "This command requires administrator permissions.", ephemeral: true });
-            return;
-        }
-
-        if (command.isRoleManager) {
-            let roleManager = interaction.guild.roles.cache.find(role => role.name === "WoRTool Manager");
-            if (!interaction.member.roles.cache.has(roleManager.id)) {
-                await interaction.reply({ content: "You do not have the 'WoRTool Manager' role.", ephemeral: true });
-                return;
+        // Check for administrator permissions first
+        if (command.isAdmin || command.isRoleManager) {
+            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                // If the command requires administrator permissions or is role-managed and the user is not an admin, deny access.
+                if (command.isRoleManager) {
+                    // Additional check for role only if it's a role-managed command and user is not an admin
+                    let roleManager = interaction.guild.roles.cache.find(role => role.name === "WoRTool Manager");
+                    if (roleManager && !interaction.member.roles.cache.has(roleManager.id)) {
+                        await interaction.reply({ content: "You do not have the 'WoRTool Manager' role.", ephemeral: true });
+                        return;
+                    }
+                } else {
+                    // If it's strictly an admin command and the user is not an admin, inform them.
+                    await interaction.reply({ content: "This command requires administrator permissions.", ephemeral: true });
+                    return;
+                }
             }
         }
 

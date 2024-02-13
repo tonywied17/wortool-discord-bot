@@ -72,12 +72,19 @@ module.exports = {
 
         interaction.reply({
           content: 
-`## ${guildName} (${side})
+`# ${guildName} (${side})
 
-To see a list of available bot commands, type \`/help\`.
+### <@${ownerId}>, You are set as the regimental owner!
 
-<@${ownerId}>,
-You are set as the regimental owner. Please __**re-login**__ to gain access to your new tools & features!`,
+### Please __**re-login**__ on [wortool.com](<https://wortool.com/>) to gain access to your new tools & features!
+
+- To see a list of available bot commands, type \`/help\`.
+- To allow your staff and NCO's access to the management slash commands (muster, enlist, media) assign them the \`WoRTool Manager\` role that was automatically created.
+
+## WorTool.com Web-Based Features
+- *You can have additional members sign up on wortool.com and join your regiment from their linked accounts section. Discord members do not need to be registered on wortool.com to be enlisted to the company muster tool. However, your NCO's will need to be registered to access the web-based tools below.*
+- *You can promote registered/enlisted user's to managers by selecting the "Manage Regiment" button below and then selecting the "Members" tab once the app launches. This will allow them access to the same Regimental Tools & Features you see below.*
+`,
           components: [webLinksRow],
           ephemeral: true
         }).catch(console.error);
