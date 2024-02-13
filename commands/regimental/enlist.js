@@ -46,21 +46,26 @@ module.exports = {
     if (interaction.options.getSubcommand() === "role") {
       const role = interaction.options.getRole("role");
       await interaction.guild.members.fetch();
+
       role.members.forEach(member => {
         if (!existingUsers.some(user => user.discordId === member.id)) {
           usersToProcess.push({
             discordId: member.id,
-            nickname: member.nickname || member.user.username,
+            nickname: member.displayName,
           });
         }
       });
+
       console.log(`Filtered users to enlist: ${usersToProcess.length}`);
+
     } else if (interaction.options.getSubcommand() === "users") {
       const user = interaction.options.getUser("target");
+      const member = await interaction.guild.members.fetch(user.id);
+
       if (!existingUsers.some(existingUser => existingUser.discordId === user.id)) {
         usersToProcess.push({
           discordId: user.id,
-          nickname: user.username,
+          nickname: member.displayName,
         });
       }
     }
