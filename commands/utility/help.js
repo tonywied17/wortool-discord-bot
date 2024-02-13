@@ -65,10 +65,10 @@ module.exports = {
 
             await interaction.followUp({
                 content: `## NCO Bot Commands
-- To allow your staff and NCO's access to the management slash commands (muster, enlist, media) assign them the \`WoRTool Manager\` role that was automatically created.
+- To allow your staff and NCO's access to the management slash commands (/muster, /enlist, /media) assign them the \`WoRTool Manager\` role that was automatically created, or use command \`/promote\`.
 ## WorTool.com Web-Based Features
-- *You can have additional members sign up on wortool.com and join your regiment from their linked accounts section. Discord members do not need to be registered on wortool.com to be enlisted to the company muster tool. However, your NCO's will need to be registered to access the web-based tools below.*
-- *You can promote registered/enlisted user's to managers by selecting the "Manage Regiment" button below and then selecting the "Members" tab once the app launches. This will allow them access to the same Regimental Tools & Features you see below.*`,
+- You can have additional members sign up on wortool.com and join your regiment from their linked accounts section. *Discord members do not need to be registered on wortool.com to be enlisted to the company muster tool. However, your NCO's will need to be registered to access the web-based tools below.*
+- Once members are registered and join your regiment on wortool.com you may promote them to managers by using the \`/promote\` slash command. \n*This will allow them access to management slash commands as well as the same Regimental Tools & Features you see below.*`,
                 components: [webLinksRow],
                 ephemeral: true
             }).catch(console.error);
