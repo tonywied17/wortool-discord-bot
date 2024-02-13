@@ -3,7 +3,7 @@
  * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Description: Command for awarding muster records for Events or Drills.
  * Author: Tony Wiedman
- * Last Modified: Mon February 12th 2024 1:47:45 
+ * Last Modified: Mon February 12th 2024 6:55:40 
  */
 
 const { EmbedBuilder, SlashCommandBuilder, ChannelType } = require('discord.js');
@@ -100,7 +100,7 @@ module.exports = {
       if (interaction.options.getSubcommand() === 'users') {
         const selectedUser = interaction.options.getUser('target');
         const enlistedUser = responseData.find(user => user.discordId === selectedUser.id);
-        if (!enlistedUser) throw new Error('## User not found in the muster records.\n Use `\\enlist` to add the user to the company roster.');
+        if (!enlistedUser) throw new Error('## User not found in the muster records.\n Use `\/enlist` to add the user to the company roster.');
 
         embed = processUsers([enlistedUser], true);
       } else {
