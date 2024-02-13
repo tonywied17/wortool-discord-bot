@@ -3,7 +3,7 @@
  * Project: c:\Users\tonyw\Desktop\ReggieBot\paapp2-discord-bot
  * Description: Command for awarding muster records for Events or Drills.
  * Author: Tony Wiedman
- * Last Modified: Mon February 12th 2024 6:55:40 
+ * Last Modified: Tue February 13th 2024 9:54:43 
  */
 
 const { EmbedBuilder, SlashCommandBuilder, ChannelType } = require('discord.js');
@@ -11,12 +11,10 @@ const axios = require('axios');
 require('dotenv').config();
 const bearerToken = process.env.AUTH_SECRET;
 
-// Helper function to format dates
 const formatDate = (date) => {
   return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
 };
 
-// Today's date in YYYY-MM-DD format
 const today = formatDate(new Date());
 
 module.exports = {
@@ -71,12 +69,18 @@ module.exports = {
       });
     };
 
+    const sanitizeForMarkdown = (text) => {
+      return text.replace(/[`*_]/g, "");
+    };
+
     const processUsers = (users, singleUser = false) => {
       const processedUsers = users.map(user => ({
         ...user,
         events: eventType === 'event' ? user.events + 1 : user.events,
         drills: eventType === 'drill' ? user.drills + 1 : user.drills,
         last_muster: today,
+        nickname: user.nickname ? sanitizeForMarkdown(user.nickname) : null,
+        username: user.username ? sanitizeForMarkdown(user.username) : null,
       }));
 
       updateMusterRecords(processedUsers).catch(console.error);

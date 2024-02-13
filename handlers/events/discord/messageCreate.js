@@ -1,4 +1,4 @@
-const { Events, PermissionsBitField } = require('discord.js');
+const { Events, PermissionsBitField, EmbedBuilder } = require('discord.js');
 const { waitingForImage } = require('../../../shared-state');
 const axios = require('axios');
 const download = require('image-downloader');
@@ -20,7 +20,11 @@ module.exports = {
       const hasWorToolManagerRole = member.roles.cache.some(role => role.name === "WoRTool Manager");
 
       if (!(hasAdminPermissions || hasWorToolManagerRole)) {
-        message.reply("You need admin permissions or the 'WoRTool Manager' role to upload images.");
+        const embed = new EmbedBuilder()
+          .setColor('#FF0000') 
+          .setTitle('Permission Denied')
+          .setDescription("You need admin permissions or the 'WoRTool Manager' role to upload images.");
+        message.reply({ embeds: [embed] });
         return;
       }
 
@@ -42,16 +46,34 @@ module.exports = {
           await download.image({ url: attachment.url, dest: filePath });
           console.log('Saved to', filePath);
           message.react('🖼️');
-          message.reply({content: `Media has been added to ${url} WoRTool Page.`});
+
+          const successEmbed = new EmbedBuilder()
+            .setColor('#00FF00') 
+            .setTitle('Media Uploaded Successfully')
+            .setDescription(`Media has been added to ${url} WoRTool Page.`);
+
+          message.reply({ embeds: [successEmbed] });
         } catch (error) {
           console.error(error);
-          message.reply('Failed to download or save the image.');
+          const errorEmbed = new EmbedBuilder()
+            .setColor('#FF0000')
+            .setTitle('Failed to Upload Image')
+            .setDescription('Failed to download or save the image.');
+          message.reply({ embeds: [errorEmbed] });
         }
       } else {
-        message.reply('Please upload a valid image.');
+        const invalidImageEmbed = new EmbedBuilder()
+          .setColor('#FFA500')
+          .setTitle('Invalid Image Format')
+          .setDescription('Please upload a valid image.');
+        message.reply({ embeds: [invalidImageEmbed] });
       }
     } else if (userState && userState.channelId === message.channelId) {
-      message.reply('Please upload an image. Text messages are not processed for the /media command.');
+      const promptEmbed = new EmbedBuilder()
+        .setColor('#FFFF00') 
+        .setTitle('Image Required')
+        .setDescription('Please upload an image. Text messages are not processed for the /media command.');
+      message.reply({ embeds: [promptEmbed] });
     }
   },
 };

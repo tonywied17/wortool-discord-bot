@@ -72,19 +72,21 @@ module.exports = {
 
         interaction.reply({
           content: 
-`# ${guildName} (${side})
+`# ${guildName} (${side}) Setup Complete!
+ ## ${interaction.user.displayName}, you're now the regiment owner.
+> Please **re-login** at [wortool.com](<https://wortool.com/>) to access your new tools & features.
 
-### <@${ownerId}>, You are set as the regimental owner!
-
-### Please __**re-login**__ on [wortool.com](<https://wortool.com/>) to gain access to your new tools & features!
-
-- To see a list of available bot commands, type \`/help\`.
-- To allow your staff and NCO's access to the management slash commands (/muster, /enlist, /media) assign them the \`WoRTool Manager\` role that was automatically created, or use command \`/promote\`.
-
-## WorTool.com Web-Based Features
-- You can have additional members sign up on wortool.com and join your regiment from their linked accounts section. *Discord members do not need to be registered on wortool.com to be enlisted to the company muster tool. However, your NCO's will need to be registered to access the web-based tools below.*
-- Once members are registered and join your regiment on wortool.com you may promote them to managers by using the \`/promote\` slash command. \n*This will allow them access to management slash commands as well as the same Regimental Tools & Features you see below.*
-`,
+Type \`/help\` for a list for available commands.
+Type \`/adminhelp\` for a list of admin & management information.
+          
+**🔧 Management Commands Access**
+Grant your staff and NCOs access to management commands (/muster, /enlist, /media) by assigning them the \`WoRTool Manager\` role, or use \`/promote\`.
+          
+**🌐 WorTool.com Integration**
+Encourage members to sign up at wortool.com and join your regiment. While Discord members can be enlisted into the company roster without a wortool.com account, NCOs must register to access web-based tools.
+          
+**👥 Promoting Regiment Managers**
+Use \`/promote\` after member registration to grant them access to Discord commands and web-based Regimental Tools & Features.`,
           components: [webLinksRow],
           ephemeral: true
         }).catch(console.error);
