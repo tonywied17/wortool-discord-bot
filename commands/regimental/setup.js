@@ -80,11 +80,11 @@ Type \`/help\` for a list for available commands.
 Type \`/adminhelp\` for a list of admin & management information.
           
 **🔧 Management Commands Access**
-Grant your staff and NCOs access to management commands (/muster, /enlist, /media) by assigning them the \`WoRTool Manager\` role, or use \`/promote\`.
+Grant your staff and NCOs access to management commands (\`/muster\`, \`/enlist\`, \`/media\`) by assigning them the \`WoRTool Manager\` role, or use \`/promote\`.
           
 **🌐 WorTool.com Integration**
-Encourage members to sign up at wortool.com and join your regiment. While Discord members can be enlisted into the company roster without a wortool.com account, NCOs must register to access web-based tools.
-          
+Encourage members to sign up at wortool.com and join your regiment. While Discord members can be enlisted into the company roster without a wortool.com account, NCOs must register and sync their Discord account in their 'Linked Accounts' settings to access web-based tools.
+        
 **👥 Promoting Regiment Managers**
 Use \`/promote\` after member registration to grant them access to Discord commands and web-based Regimental Tools & Features.`,
           components: [webLinksRow],
