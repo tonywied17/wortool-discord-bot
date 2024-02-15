@@ -1,7 +1,10 @@
 const { Events, PermissionsBitField, EmbedBuilder } = require('discord.js');
 const { waitingForImage } = require('../../../shared-state');
+const SFTPClient = require('ssh2-sftp-client');
 const axios = require('axios');
-const ftp = require("basic-ftp");
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
 module.exports = {
     name: Events.MessageCreate,
@@ -40,9 +43,9 @@ module.exports = {
                     const regimentId = regimentsResponse.data.regimentId;
 
                     let randomFilename = `gallery-item-${makeId(5)}.jpg`;
-                    let remoteFilePath = `/public_html/api.wortool.com/wor-api/resources/${regimentId}/static/assets/uploads/${randomFilename}`;
+                    let remoteFilePath = `/home/paarmy/public_html/api.wortool.com/wor-api/resources/${regimentId}/static/assets/uploads/${randomFilename}`;
 
-                    await uploadFileViaFTP(attachment.url, remoteFilePath);
+                    await uploadFileViaSFTP(attachment.url, remoteFilePath);
                     console.log('Uploaded to', remoteFilePath);
                     message.react('🖼️');
 
@@ -77,32 +80,31 @@ module.exports = {
     },
 };
 
-async function uploadFileViaFTP(imageUrl, remoteFilePath) {
-    const client = new ftp.Client();
-    client.ftp.verbose = true;
+async function uploadFileViaSFTP(imageUrl, remoteFilePath) {
+  console.log(path.resolve(__dirname, 'key.pem'))
+  const sftp = new SFTPClient();
+  try {
+    await sftp.connect({
+      host: process.env.SFTP_HOST,
+      port: process.env.SFTP_PORT || 22,
+      username: process.env.SFTP_USER,
+      privateKey: fs.readFileSync(path.resolve(__dirname, '../../../key.pem')),
+    });
+    console.log("Connected to the SFTP server.");
 
-    try {
-        await client.access({
-            host: process.env.FTP_HOST,
-            user: process.env.FTP_USER,
-            password: process.env.FTP_PASSWORD,
-            secure: false,
-        });
-        console.log("Connected to the FTP server.");
+    const response = await axios({
+      method: 'get',
+      url: imageUrl,
+      responseType: 'stream',
+    });
 
-        const response = await axios({
-            method: 'get',
-            url: imageUrl,
-            responseType: 'stream'
-        });
-
-        await client.uploadFrom(response.data, remoteFilePath);
-        console.log("File uploaded successfully");
-    } catch (error) {
-        console.error("FTP upload error:", error);
-    } finally {
-        client.close();
-    }
+    await sftp.put(response.data, remoteFilePath);
+    console.log("File uploaded successfully via SFTP.");
+  } catch (error) {
+    console.error("SFTP upload error:", error);
+  } finally {
+    sftp.end();
+  }
 }
 
 function makeId(length) {
