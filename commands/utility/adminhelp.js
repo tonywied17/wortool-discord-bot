@@ -13,7 +13,7 @@ module.exports = {
             .setDescription('A comprehensive guide to utilizing admin functions and managing your regiment effectively.')
             .addFields(
                 { name: '🔧 Management Commands Access', value: 'To grant your staff and NCOs access to management commands such as `/muster`, `/enlist`, `/media`, assign them the `WoRTool Manager` role. Alternatively, use the `/promote` command for role assignment.' },
-                { name: '🌐 WorTool.com Integration', value: 'For additional features, have members sign up at wortool.com and join your regiment. While Discord members can be enlisted into the company roster without a wortool.com account, NCOs must register to access web-based management tools.' },
+                { name: '🌐 WorTool.com Integration', value: 'For additional features, have members sign up at wortool.com and join your regiment. While Discord members can be enlisted into the company roster without a wortool.com account, NCOs must register and sync their Discord account in their \'Linked Accounts\' settings to access web-based tools.' },
                 { name: '👥 Promoting Regiment Managers', value: 'After registration, promote members to managers on wortool.com using the `/promote` command to grant them access to both slash commands and web-based Regimental Tools & Features.' }
             )
             .setFooter({ text: 'For further assistance, contact support.' });
