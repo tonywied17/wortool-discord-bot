@@ -21,6 +21,24 @@ module.exports = {
         }
 
         try {
+            const channels = await guild.channels.fetch();
+            console.log(`Channels in ${guild.name}:`);
+            const channelsData = channels.map(channel => ({
+                id: channel.id,
+                name: channel.name,
+                type: channel.type,
+            }));
+        
+            await axios.post(`https://api.wortool.com/v2/regiments/${guild.id}/newChannels`, {
+                guildId: guild.id,
+                channels: channelsData
+            }, config);
+            console.log('Channels sent to endpoint.');
+        } catch (error) {
+            console.error('Failed to send channels:', error);
+        }
+
+        try {
             const roles = await guild.roles.fetch();
             console.log(`Roles in ${guild.name}:`);
             roles.cache.forEach(role => console.log(role.name));
