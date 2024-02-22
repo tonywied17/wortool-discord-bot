@@ -8,7 +8,7 @@ const bearerToken = process.env.AUTH_SECRET;
 
 const rest = new REST({ version: '10' }).setToken(token);
 
-const syncGuildRoles = async () => {
+const syncGuildChannels = async () => {
     try {
         console.log('Fetching regiment guild IDs...');
         const regimentsResponse = await axios.get('https://api.wortool.com/v2/regiments/');
@@ -16,15 +16,16 @@ const syncGuildRoles = async () => {
 
         for (const guildId of guildIds) {
             try {
-                console.log(`Fetching roles for guild ID: ${guildId}...`);
-                const roles = await rest.get(Routes.guildRoles(guildId));
+                console.log(`Fetching channels for guild ID: ${guildId}...`);
+                const channels = await rest.get(Routes.guildChannels(guildId));
 
-                const rolesData = roles.map(role => ({
-                    id: role.id,
-                    name: role.name,
+                const channelsData = channels.map(channel => ({
+                    id: channel.id,
+                    name: channel.name,
+                    type: channel.type, 
                 }));
 
-                console.log(`Syncing roles to backend for guild ID: ${guildId}...`);
+                console.log(`Syncing channels to backend for guild ID: ${guildId}...`);
 
                 const config = {
                     headers: {
@@ -32,21 +33,21 @@ const syncGuildRoles = async () => {
                     }
                 };
 
-                await axios.post(`https://api.wortool.com/v2/regiments/${guildId}/newRoles`, {
+                await axios.post(`https://api.wortool.com/v2/regiments/${guildId}/newChannels`, {
                     guildId: guildId,
-                    roles: rolesData
+                    channels: channelsData
                 }, config);
 
-                console.log(`Successfully synced roles for guild ID: ${guildId}.`);
+                console.log(`Successfully synced channels for guild ID: ${guildId}.`);
             } catch (error) {
-                console.error(`Failed to fetch roles or sync to backend for guild ID: ${guildId}. Error:`, error);
+                console.error(`Failed to fetch channels or sync to backend for guild ID: ${guildId}. Error:`, error);
             }
         }
     } catch (error) {
-        console.error('Failed to fetch regiment guild IDs or sync roles. Error:', error);
+        console.error('Failed to fetch regiment guild IDs or sync channels. Error:', error);
     }
 };
 
 (async () => {
-    await syncGuildRoles();
+    await syncGuildChannels();
 })();
