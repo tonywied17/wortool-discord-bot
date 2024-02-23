@@ -5,8 +5,13 @@ module.exports = {
     name: Events.GuildCreate,
     async execute(guild) {
         console.log(`Joined a new guild: ${guild.name} (id: ${guild.id})`);
+        
+        const config = {
+            headers: {
+              'Authorization': `Bearer ${bearerToken}`
+            }
+          };
 
-        // Check and create a specific role if it doesn't exist
         let roleManager = guild.roles.cache.find(role => role.name === "WoRTool Manager");
         if (!roleManager) {
             try {
@@ -19,7 +24,7 @@ module.exports = {
                 console.error(`Failed to create "WoRTool Manager" role in guild: ${guild.name}`, error);
             }
         }
-
+        
         try {
             const channels = await guild.channels.fetch();
             console.log(`Channels in ${guild.name}:`);
@@ -43,11 +48,7 @@ module.exports = {
             console.log(`Roles in ${guild.name}:`);
             roles.cache.forEach(role => console.log(role.name));
             
-            const config = {
-              headers: {
-                'Authorization': `Bearer ${bearerToken}`
-              }
-            };
+            
             await axios.post(`https://api.wortool.com/v2/regiments/${role.guild.id}/newRoles`, {
                 guildId: guild.id,
                 roles: roles.cache.map(role => ({ id: role.id, name: role.name }))
