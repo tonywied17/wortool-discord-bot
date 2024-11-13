@@ -3,7 +3,6 @@ const axios = require('axios');
 require('dotenv').config();
 
 const token = process.env.TOKEN;
-const clientId = process.env.CLIENT_ID;
 const bearerToken = process.env.AUTH_SECRET;
 
 const rest = new REST({ version: '10' }).setToken(token);
