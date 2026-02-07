@@ -9,7 +9,7 @@
 const { EmbedBuilder, SlashCommandBuilder, ChannelType } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
-const bearerToken = process.env.AUTH_SECRET;
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const formatDate = (date) =>
 {
@@ -57,7 +57,11 @@ module.exports = {
     const fetchEnlistedUsers = async () =>
     {
       const response = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'x-webhook-secret': webhookSecret
+        }
       });
       return response.data;
     };
@@ -68,7 +72,7 @@ module.exports = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${bearerToken}`,
+          'x-webhook-secret': webhookSecret,
         },
       });
     };

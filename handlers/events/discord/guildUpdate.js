@@ -10,7 +10,7 @@
  * Copyright (c) 2023 Tone Web Design, Molex
  */
 const axios = require('axios');
-const bearerToken = process.env.AUTH_SECRET
+const webhookSecret = process.env.WEBHOOK_SECRET
 const { Events } = require('discord.js');
 /**
  * The `guildUpdate` event is emitted whenever a guild is updated - e.g. server name, guild avatar change.
@@ -41,7 +41,7 @@ module.exports = {
 
     const config = {
       headers: {
-        'Authorization': `Bearer ${bearerToken}`
+        'x-webhook-secret': webhookSecret
       }
     };
 

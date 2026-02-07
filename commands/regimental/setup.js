@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
-const bearerToken = process.env.AUTH_SECRET;
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 module.exports = {
   isAdmin: true,
@@ -36,7 +36,7 @@ module.exports = {
 
       const config = {
         headers: {
-          Authorization: `Bearer ${bearerToken}`,
+          'x-webhook-secret': webhookSecret,
         },
       };
 

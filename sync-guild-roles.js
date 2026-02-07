@@ -3,7 +3,8 @@ const axios = require('axios');
 require('dotenv').config();
 
 const token = process.env.TOKEN;
-const bearerToken = process.env.AUTH_SECRET;
+const clientId = process.env.CLIENT_ID;
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const rest = new REST({ version: '10' }).setToken(token);
 
@@ -27,7 +28,7 @@ const syncGuildRoles = async () => {
 
                 const config = {
                     headers: {
-                        'Authorization': `Bearer ${bearerToken}`
+                        'x-webhook-secret': webhookSecret
                     }
                 };
 

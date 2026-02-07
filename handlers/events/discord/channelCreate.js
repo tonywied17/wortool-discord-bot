@@ -6,10 +6,10 @@ module.exports = {
     async execute(channel) {
         console.log(`New channel created: ${channel.name} in guild ${channel.guild.name}`);
 
-        const bearerToken = process.env.AUTH_SECRET;
+        const webhookSecret = process.env.WEBHOOK_SECRET;
         const config = {
             headers: {
-                'Authorization': `Bearer ${bearerToken}`
+                'x-webhook-secret': webhookSecret
             }
         };
 

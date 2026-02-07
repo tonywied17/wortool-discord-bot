@@ -3,7 +3,7 @@ const axios = require("axios");
 require("dotenv").config();
 const currentDate = new Date();
 const today = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
-const bearerToken = process.env.AUTH_SECRET;
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 module.exports = {
   isAdmin: false,
@@ -37,7 +37,7 @@ module.exports = {
     const regimentId = regimentIdResponse.data.regimentId;
 
     const existingUsersResponse = await axios.get(`https://api.wortool.com/v2/musteruser/discord/${guildId}`, {
-      headers: { "Authorization": `Bearer ${bearerToken}` },
+      headers: { "x-webhook-secret": webhookSecret },
     });
     const existingUsers = existingUsersResponse.data;
 
@@ -83,7 +83,7 @@ module.exports = {
 
       try {
         await axios.post("https://api.wortool.com/v2/musteruser/create", usersData, {
-          headers: { "Authorization": `Bearer ${bearerToken}` },
+          headers: { "x-webhook-secret": webhookSecret },
         });
 
         const embed = new EmbedBuilder()

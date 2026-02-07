@@ -4,10 +4,10 @@ module.exports = {
     name: Events.GuildRoleDelete,
     async execute(role) {
         console.log(`Role deleted: ${role.name} in guild ${role.guild.name}`);
-        const bearerToken = process.env.AUTH_SECRET
+        const webhookSecret = process.env.WEBHOOK_SECRET;
         const config = {
           headers: {
-            'Authorization': `Bearer ${bearerToken}`
+            'x-webhook-secret': webhookSecret
           }
         };
         try {

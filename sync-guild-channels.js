@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
-const bearerToken = process.env.AUTH_SECRET;
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const rest = new REST({ version: '10' }).setToken(token);
 
@@ -29,7 +29,7 @@ const syncGuildChannels = async () => {
 
                 const config = {
                     headers: {
-                        'Authorization': `Bearer ${bearerToken}`
+                        'x-webhook-secret': webhookSecret
                     }
                 };
 

@@ -11,7 +11,7 @@
  */
 const { Events } = require('discord.js');
 const axios = require('axios');
-const bearerToken = process.env.AUTH_SECRET
+const webhookSecret = process.env.WEBHOOK_SECRET;
 /**
  * The `guildMemberAdd` event is emitted whenever a user joins a guild.
  * @param {GuildMember} member The member that joined the guild
@@ -32,7 +32,7 @@ module.exports = {
 
     const config = {
       headers: {
-        'Authorization': `Bearer ${bearerToken}`
+        'x-webhook-secret': webhookSecret
       }
     };
 

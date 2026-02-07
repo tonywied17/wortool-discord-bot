@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
-const bearerToken = process.env.AUTH_SECRET;
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 module.exports = {
   isAdmin: true,
@@ -17,16 +17,16 @@ module.exports = {
     const user = interaction.options.getUser("member");
 
     try {
-      const regimentsResponse = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, { headers: { Authorization: `Bearer ${bearerToken}` } });
+      const regimentsResponse = await axios.get(`https://api.wortool.com/v2/regiments/g/${guildId}/discordGuild`, { headers: { "x-webhook-secret": webhookSecret } });
       const regimentId = regimentsResponse.data.regimentId;
 
-      const usersResponse = await axios.get(`https://api.wortool.com/v2/regiments/${regimentId}/users`, { headers: { Authorization: `Bearer ${bearerToken}` } });
+      const usersResponse = await axios.get(`https://api.wortool.com/v2/regiments/${regimentId}/users`, { headers: { "x-webhook-secret": webhookSecret } });
       const users = usersResponse.data;
 
       const targetUser = users.find(u => u.discordId === user.id);
 
       if (targetUser) {
-        await axios.put(`https://api.wortool.com/v2/auth/${targetUser.id}/setModeratorDiscord`, {}, { headers: { Authorization: `Bearer ${bearerToken}` } });
+        await axios.put(`https://api.wortool.com/v2/auth/${targetUser.id}/setModeratorDiscord`, {}, { headers: { "x-webhook-secret": webhookSecret } });
       }
 
       const role = interaction.guild.roles.cache.find(r => r.name === "WoRTool Manager");

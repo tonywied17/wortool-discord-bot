@@ -5,10 +5,10 @@ module.exports = {
     name: Events.GuildRoleUpdate,
     async execute(oldRole, newRole) {
         console.log(`Role updated in guild: ${newRole.guild.name}`);
-        const bearerToken = process.env.AUTH_SECRET;
+        const webhookSecret = process.env.WEBHOOK_SECRET;
         const config = {
             headers: {
-                'Authorization': `Bearer ${bearerToken}`
+                'x-webhook-secret': webhookSecret
             }
         };
 

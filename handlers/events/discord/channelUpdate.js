@@ -5,10 +5,10 @@ module.exports = {
     name: Events.ChannelUpdate,
     async execute(oldChannel, newChannel) {
         console.log(`Channel updated in guild: ${newChannel.guild.name}`);
-        const bearerToken = process.env.AUTH_SECRET;
+        const webhookSecret = process.env.WEBHOOK_SECRET;
         const config = {
             headers: {
-                'Authorization': `Bearer ${bearerToken}`
+                'x-webhook-secret': webhookSecret
             }
         };
 

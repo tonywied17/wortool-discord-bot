@@ -1,6 +1,6 @@
 const { Events } = require('discord.js');
 const axios = require('axios');
-const bearerToken = process.env.AUTH_SECRET
+const webhookSecret = process.env.WEBHOOK_SECRET;
 module.exports = {
     name: Events.GuildCreate,
     async execute(guild) {
@@ -8,7 +8,7 @@ module.exports = {
         
         const config = {
             headers: {
-              'Authorization': `Bearer ${bearerToken}`
+              'x-webhook-secret': webhookSecret
             }
           };
 

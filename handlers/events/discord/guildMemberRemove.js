@@ -11,7 +11,7 @@
  */
 const { Events } = require('discord.js');
 const axios = require('axios');
-const bearerToken = process.env.AUTH_SECRET
+const webhookSecret = process.env.WEBHOOK_SECRET
 /**
  * The `guildMemberRemove` event is emitted whenever a member leaves a guild, or is kicked.
  * @param {GuildMember} member The member that left the guild
@@ -33,7 +33,7 @@ module.exports = {
     
     const config = {
       headers: {
-        'Authorization': `Bearer ${bearerToken}`
+        'x-webhook-secret': webhookSecret
       }
     };
 
